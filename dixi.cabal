@@ -43,7 +43,7 @@ executable dixi
                      , Dixi.PatchUtils
   -- other-extensions:    
   ghc-options:       -Wall
-  build-depends:       base >=4.7 && <4.8
+  build-depends:       base >=4.7 && <4.9
                      , composition-tree >= 0.2.0.1 && < 0.3, patches-vector >= 0.1.2 && < 0.2
                      , pandoc >= 1.15 &&  < 1.16 , servant >= 0.4 && < 0.5
                      , acid-state >= 0.13 && <0.14 , safecopy >= 0.8.3 && < 0.9
