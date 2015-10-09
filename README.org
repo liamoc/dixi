@@ -19,8 +19,8 @@ of several changes) from deep in a document's history and
 preserve every other change.
 
 Right now the wiki doesn't support many bells and whistles,
-such as administrator control, configurability, or user accounts,
-but they're coming.
+such as administrator control, extensive configurability, 
+or user accounts, but they're coming.
 
 * Using
 
@@ -32,7 +32,7 @@ the usual ~cabal~ ceremony.
 
 #+BEGIN_SRC sh
 cabal sandbox init
-cabal install --only-dependencies
+cabal install --only-dependencies  # be warned, this will take some time
 cabal build
 ./dist/build/dixi/dixi
 #+END_SRC
@@ -55,7 +55,42 @@ providing the file's path as a command-line argument, e.g:
 dixi my/other/config.yml
 #+END_SRC sh
 
-Once dixi is running, just navigate to ~localhost:8000~ (or whatever port ~dixi~ is configured to run on)
+Once ~dixi~ is running, just navigate to ~localhost:8000~ (or whatever port ~dixi~ is configured to run on)
 and you will be shown the (presumably blank) Main Page. The toolbar at the top provides most useful tools.
 Other pages are located at ~/Page_Title~. Underscores are displayed as spaces in the output, and spaces
 in the URL are converted to underscores.
+
+The page text itself defaults to the format of Emacs' [[http://orgmode.org][Org Mode]], as read by [[http://pandoc.org][pandoc]]. Future versions will
+allow the format to be customised, however.
+
+* Future Work
+
+Tons! I'll use GitHub issues to keep track of features I'd like to add, so look over there.
+
+* What makes this special?
+
+Most wikis do not take much care in their implementations. They're buggy, monstrious pieces of software
+that violate basic principles of software engineering as well as complete disregard for computer science.
+
+It turns out, computer scientists and software engineers have long sinced developed tools, both in theory
+and practice, that allow us to implement wikis a lot better than has been done previously.
+
+- The use of [[http://home.solcon.nl/mklooster/darcs/patch-calculus.html][the theory of patches]] (really, just the group structure of patches) to allow us to easily compose 
+  and revert patches. This is embodied in my [[https://github.com/liamoc/patches-vector][~patches-vector~]] library.
+- The use of [[https://en.wikipedia.org/wiki/Operational_transformation][operational transformation]] to move patches relative to other patches, and handle merging, which is
+  also in my [[https://github.com/liamoc/patches-vector][~patches-vector~]] library.
+- The use of efficient [[https://github.com/liamoc/composition-tree][composition trees]] to allow us to efficiently compute the composition of several changes,
+  and also to eliminate the need to store each version of the document independently.
+- The use of property-based testing to formally specify all of the above and test each implementation against
+  its specification, which is rigorous and detailed. For ~patches-vector~, the group laws and several transformation
+  properties are checked. For ~composition-tree~, several properties are derived from the fact that a composition tree
+  is a [[https://en.wikipedia.org/wiki/Refinement_(computing)][data refinement]] of a list.
+- The use of the [[http://acid-state.seize.it/][~acid-state~]] library to store these composition-trees, which provides proper [[https://en.wikipedia.org/wiki/ACID][ACID]] guarantees
+  for immutable Haskell data structures.
+- The use of the [[http://haskell-servant.github.io/][~servant~]] library to specify the API and web server for the wiki in a concise, and type-safe way,
+  minimising errors in the CRUD logic.
+- The use of the Haskell programming language, which provides the type- and eco-systems necessary to make 
+  this kind of rigorous software engineering possible.
+
+The other noteworthy thing is that the excellent library [[http://pandoc.org][~pandoc~]] is used, which makes the wiki rather full featured
+without me having to do very much in the area of document formatting.
