@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE ConstraintKinds #-}
 
@@ -15,9 +16,16 @@ import Data.Acid
 import Data.Text (Text)
 import Network.Wai.Handler.Warp
 import Servant
+import System.Directory
+import System.Environment
+import System.Exit
+import System.IO
+
+import qualified Data.Yaml as Y
 
 import Dixi.API
 import Dixi.Common
+import Dixi.Config
 import Dixi.Database
 import Dixi.Forms  () -- imported for orphans
 import Dixi.Markup () -- imported for orphans
@@ -56,6 +64,26 @@ server db =  page db
           |: page db "Main_Page"
 
 main :: IO ()
-main = do
-  db <- openLocalState emptyDB
-  run 8081 $ serve dixi $ server db
+main = getArgs >>= main'
+ where
+   main' [] = main' ["config.yml"]
+   main' [x] = do
+     c <- doesFileExist x
+     if c then Y.decodeFileEither x >>= main''
+          else do
+       putStrLn "Configuration file not found, would you like to [c]reate one, [r]un with default configuration or e[x]it?"
+       hSetBuffering stdin NoBuffering
+       getChar >>= \i -> case i of
+         _ | i `elem` "cC" -> Y.encodeFile x defaultConfig >> main'' (Right defaultConfig)
+         _ | i `elem` "rR" -> main'' (Right defaultConfig)
+         _ | otherwise     -> exitFailure
+   main' _ = do
+     p <- getProgName
+     hPutStrLn stderr $ "usage:\n   " ++ p ++ " [/path/to/config.yml]"
+     exitFailure
+   main'' (Left e) = do
+     hPutStrLn stderr $ Y.prettyPrintParseException e
+     exitFailure
+   main'' (Right (Config {..})) = do
+     db <- openLocalStateFrom storage emptyDB
+     run port $ serve dixi $ server db
