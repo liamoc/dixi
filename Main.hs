@@ -80,9 +80,9 @@ main = getArgs >>= main'
        putStrLn "Configuration file not found, would you like to [c]reate one, [r]un with default configuration or e[x]it?"
        hSetBuffering stdin NoBuffering
        getChar >>= \i -> case i of
-         _ | i `elem` "cC" -> Y.encodeFile x defaultConfig >> main'' (Right defaultConfig)
-         _ | i `elem` "rR" -> main'' (Right defaultConfig)
-         _ | otherwise     -> exitFailure
+         _ | i `elem` ['c','C'] -> Y.encodeFile x defaultConfig >> main'' (Right defaultConfig)
+         _ | i `elem` ['r','R'] -> main'' (Right defaultConfig)
+         _ | otherwise          -> exitFailure
    main' _ = do
      p <- getProgName
      hPutStrLn stderr $ "usage:\n   " ++ p ++ " [/path/to/config.yml]"
