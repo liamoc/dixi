@@ -76,21 +76,21 @@ It turns out, computer scientists and software engineers have long sinced develo
 and practice, that allow us to implement wikis a lot better than has been done previously.
 
 - The use of [[http://home.solcon.nl/mklooster/darcs/patch-calculus.html][the theory of patches]] (really, just the group structure of patches) to allow us to easily compose 
-  and revert patches. This is embodied in my ~[[https://github.com/liamoc/patches-vector][patches-vector]]~ library.
+  and revert patches. This is embodied in my [[https://github.com/liamoc/patches-vector][patches-vector]] library.
 - The use of [[https://en.wikipedia.org/wiki/Operational_transformation][operational transformation]] to move patches relative to other patches, and handle merging, which is
-  also in my ~[[https://github.com/liamoc/patches-vector][patches-vector]]~ library.
+  also in my [[https://github.com/liamoc/patches-vector][patches-vector]] library.
 - The use of efficient [[https://github.com/liamoc/composition-tree][composition trees]] to allow us to efficiently compute the composition of several changes,
   and also to eliminate the need to store each version of the document independently.
 - The use of property-based testing to formally specify all of the above and test each implementation against
   its specification, which is rigorous and detailed. For ~patches-vector~, the group laws and several transformation
   properties are checked. For ~composition-tree~, several properties are derived from the fact that a composition tree
   is a [[https://en.wikipedia.org/wiki/Refinement_(computing)][data refinement]] of a list.
-- The use of the ~[[http://acid-state.seize.it/][acid-state]]~ library to store these composition-trees, which provides proper [[https://en.wikipedia.org/wiki/ACID][ACID]] guarantees
+- The use of the [[http://acid-state.seize.it/][acid-state]] library to store these composition-trees, which provides proper [[https://en.wikipedia.org/wiki/ACID][ACID]] guarantees
   for immutable Haskell data structures.
-- The use of the ~[[http://haskell-servant.github.io/][servant]]~ library to specify the API and web server for the wiki in a concise, and type-safe way,
+- The use of the [[http://haskell-servant.github.io/][servant]] library to specify the API and web server for the wiki in a concise, and type-safe way,
   minimising errors in the CRUD logic.
 - The use of the Haskell programming language, which provides the type- and eco-systems necessary to make 
   this kind of rigorous software engineering possible.
 
-The other noteworthy thing is that the excellent library ~[[http://pandoc.org][pandoc]]~ is used, which makes the wiki rather full featured
+The other noteworthy thing is that the excellent library [[http://pandoc.org][pandoc]] is used, which makes the wiki rather full featured
 without me having to do very much in the area of document formatting.
