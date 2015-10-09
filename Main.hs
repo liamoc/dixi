@@ -86,4 +86,6 @@ main = getArgs >>= main'
      exitFailure
    main'' (Right (Config {..})) = do
      db <- openLocalStateFrom storage emptyDB
+     createCheckpoint db
+     createArchive    db
      run port $ serve dixi $ server db
