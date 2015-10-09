@@ -67,7 +67,7 @@ getDiff k (v1 , v2) | v1 > v2   = getDiff k (v2, v1)
 
 amendPatch :: Key -> Version -> Patch Char -> Maybe Text -> Update Database (Version)
 amendPatch k v q com = do
-  modifying (db . at k) $ \mb ->
+  (db . at k) %= \mb ->
     let b = fromMaybe mempty mb
         p = C.dropComposed v b ^. body
         r = snd $ P.transformWith P.theirs p q
