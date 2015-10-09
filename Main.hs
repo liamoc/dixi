@@ -7,6 +7,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE ConstraintKinds #-}
 
 import Control.Applicative
@@ -22,6 +23,7 @@ import System.Exit
 import System.IO
 
 import qualified Data.Yaml as Y
+import qualified Data.Text as T
 
 import Dixi.API
 import Dixi.Common
@@ -31,9 +33,13 @@ import Dixi.Forms  () -- imported for orphans
 import Dixi.Markup () -- imported for orphans
 import Dixi.Page
 
+spacesToUScores :: T.Text -> T.Text
+spacesToUScores = T.pack . map (\x -> if x == ' ' then '_' else x) . T.unpack
+
 page :: AcidState Database -> Key -> Server PageAPI
-page db key =  latest
-            |: history
+page db (spacesToUScores -> key)
+  =  latest
+  |: history
   where
     latest  =  latestQ PP |: latestQ RP
 
