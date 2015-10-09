@@ -29,6 +29,10 @@ copyright:           Liam O'Connor, 2015
 category:            Web
 build-type:          Simple
 cabal-version:       >=1.10
+homepage:            https://github.com/liamoc/dixi
+source-repository head
+  type:     git
+  location: https://github.com/liamoc/dixi
 
 executable dixi
   main-is:             Main.hs
