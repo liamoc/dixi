@@ -22,15 +22,21 @@ or user accounts, but they're coming.
 
 ** Using
 
-At the moment, ~dixi~ is not on Hackage, although that will
-change very soon.
+You can get ~dixi~ from Hackage, by using ~cabal~ or ~stack~
+to install it.
 
-In the meantime, you'll have to build it from source, using
+#+BEGIN_SRC sh
+cabal update
+cabal install dixi
+#+END_SRC
+
+You can also build it from source, using
 the usual ~cabal~ ceremony.
 
 #+BEGIN_SRC sh
 cabal sandbox init
 cabal install --only-dependencies  # be warned, this will take some time
+cabal configure
 cabal build
 ./dist/build/dixi/dixi
 #+END_SRC
