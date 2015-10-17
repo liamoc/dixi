@@ -1,6 +1,9 @@
 [[https://travis-ci.org/liamoc/dixi][file:https://travis-ci.org/liamoc/dixi.svg]] [[http://hackage.haskell.org/package/dixi][file:https://img.shields.io/hackage/v/dixi.svg]] [[http://haskell.org][file:https://img.shields.io/badge/language-Haskell-blue.svg]] [[https://github.com/liamoc/dixi/blob/master/LICENSE][file:http://img.shields.io/badge/license-BSD3-brightgreen.svg]]
 
-* Dixi
+
+#+ATTR_HTML: alt="Dixi"
+[[file:https://raw.githubusercontent.com/liamoc/dixi/master/logo.png]]
+
 
 *dīxī* (/v./ fp. s. perf. act. ind.) to speak, to declare.
 
