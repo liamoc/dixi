@@ -16,9 +16,11 @@ import Data.Maybe    (fromMaybe)
 import Data.Monoid
 import Data.Patch    (Hunks, HunkStatus(..))
 import Data.Proxy
+import Data.Time
 import Data.Text     (Text)
 import Servant.API
 import Servant.HTML.Blaze
+import System.Locale
 import Text.Blaze
 import Text.Cassius
 import Text.Hamlet   (shamlet, Html)
@@ -35,6 +37,10 @@ import Dixi.PatchUtils
 
 link :: (IsElem endpoint Dixi, HasLink endpoint) => Proxy endpoint -> MkLink endpoint
 link = safeLink dixi
+
+renderTime :: Last UTCTime -> String
+renderTime (Last Nothing) = "(never)"
+renderTime (Last (Just t)) = formatTime defaultTimeLocale "%T, %F (%Z)" t
 
 renderTitle :: Text -> Text
 renderTitle = T.pack . map (\c -> if c == '_' then ' ' else c) .  T.unpack
@@ -154,7 +160,12 @@ stylesheet = [cassius|
     text-decoration: line-through;
   .hunk-replaced
     background: #F3E686
-
+  .timestamp
+    color: #444444
+    font-size: small
+  div.timestamp
+    margin-left: 0.5em
+    margin-top: 2em
 |] undefined
 
 outerMatter :: Text -> Html -> Html
@@ -233,6 +244,7 @@ instance ToMarkup History where
              <th .histh-fromto> From/To
              <th .histh-changes> Changes
              <th .histh-comment> Comment
+             <th .histh-comment> Time
          $forall (v, p) <- ps'
            <tr>
             <td .hist-version>
@@ -244,6 +256,8 @@ instance ToMarkup History where
              #{(p ^. body)}
             <td>
              <a .histlink href="/#{link prettyUrl k v}">#{guardText "no comment" (unlast "no comment" (p ^. comment))}
+            <td>
+             <span .timestamp>#{renderTime (p ^. time)}
          <tr>
            <td> &nbsp;
          <tr>
@@ -286,6 +300,7 @@ instance ToMarkup PrettyPage where
   toMarkup (PP k v p)
     = let
        com = p ^. comment . traverse
+       tim = renderTime $ p ^. time
        bod = case readOrg def (filter (/= '\r') . T.unpack $ p ^. body) of
                Left err -> [shamlet|#{err}|]
                Right pd -> writeHtml def pd
@@ -294,6 +309,7 @@ instance ToMarkup PrettyPage where
            #{versionHeader k v com}
            <div .body>
              #{bod}
+           <div .timestamp> This version was last edited at #{tim}
          |]
 
 instance ToMarkup RawPage where

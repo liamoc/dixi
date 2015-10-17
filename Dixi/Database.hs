@@ -23,6 +23,7 @@ import Data.Monoid
 import Data.Patch (Patch)
 import Data.SafeCopy hiding (Version)
 import Data.Text (Text)
+import Data.Time
 import Data.Typeable
 
 import qualified Data.Compositions.Snoc as C
@@ -65,30 +66,30 @@ getDiff k (v1 , v2) | v1 > v2   = getDiff k (v2, v1)
   let y = patchToVector (C.composed (C.take v1 b) ^. body)
   return $ fmap (\z -> P.hunks z y) (C.dropComposed v1 (C.take v2 b)) 
 
-amendPatch :: Key -> Version -> Patch Char -> Maybe Text -> Update Database (Version)
-amendPatch k v q com = do
+amendPatch :: Key -> Version -> Patch Char -> Maybe Text -> UTCTime -> Update Database (Version)
+amendPatch k v q com tim = do
   (db . at k) %= \mb ->
     let b = fromMaybe mempty mb
         p = C.dropComposed v b ^. body
         r = snd $ P.transformWith P.theirs p q
-     in Just (C.snoc b (Page r (Last com)))
+     in Just (C.snoc b (Page r (Last com) (Last $ Just tim)))
   C.length <$> use (db . ix k)
 
-amend :: Key -> Version -> Text -> Maybe Text -> Update Database (Version)
-amend k v new com = do
+amend :: Key -> Version -> Text -> Maybe Text -> UTCTime -> Update Database (Version)
+amend k v new com tim = do
   b <- use (db . ix k)
   let n = V.fromList (T.unpack new)
       o = C.composed (C.take v b) ^. body . to patchToVector
       q = P.diff o n
-  amendPatch k v q com
+  amendPatch k v q com tim
 
 
-revert :: Key -> (Version, Version) -> Maybe Text -> Update Database Version
-revert k (v1,v2) com | v2 < v1 = revert k (v2, v1) com
-revert k (v1,v2) com = do
+revert :: Key -> (Version, Version) -> Maybe Text -> UTCTime -> Update Database Version
+revert k (v1,v2) com tim | v2 < v1 = revert k (v2, v1) com tim
+revert k (v1,v2) com tim = do
    b <- use (db . ix k)
    let p = C.dropComposed v1 (C.take v2 b) ^. body
-   amendPatch k (max v1 v2) (P.inverse p) com
+   amendPatch k (max v1 v2) (P.inverse p) com tim
 
 makeAcidic ''Database ['getLatest, 'getVersion, 'getHistory, 'getDiff, 'amend, 'revert]
 

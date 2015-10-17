@@ -14,6 +14,7 @@ import Control.Applicative
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Either
 import Data.Acid
+import Data.Time
 import Data.Text (Text)
 import Network.Wai.Handler.Warp
 import Servant
@@ -52,11 +53,11 @@ page db (spacesToUScores -> key)
             |: reversion
 
     reversion (DR v1 v2 com) = do
-      _ <- liftIO $ update db $ Revert key (v1, v2) com
+      _ <- liftIO (getCurrentTime >>= update db . Revert key (v1, v2) com)
       latestQ PP
     version v =  (versionQ PP v |: versionQ RP v)
               |: updateVersion v
-    updateVersion v (NB t c) = do _ <- liftIO $ update db $ Amend key v t c
+    updateVersion v (NB t c) = do _ <- liftIO $ (getCurrentTime >>= update db . Amend key v t c)
                                   latestQ PP
 
     latestQ :: (Key -> Version -> Page Text -> a) -> EitherT ServantErr IO a
