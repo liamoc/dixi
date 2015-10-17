@@ -20,7 +20,7 @@ import Data.Time
 import Data.Text     (Text)
 import Servant.API
 import Servant.HTML.Blaze
-import System.Locale
+import Data.Time.Locale.Compat
 import Text.Blaze
 import Text.Cassius
 import Text.Hamlet   (shamlet, Html)
