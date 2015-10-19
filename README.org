@@ -51,8 +51,11 @@ you to create a file with the default configuration if it can't find the file.
 The default configuration is simply:
 
 #+BEGIN_SRC yaml
-port: 8000     # TCP port to run on
-storage: state # Directory to store data, must be writable.
+time:
+  format: '%T, %F'  # C style format string for displaying times
+  timezone: Etc/UTC # Time zone as found in tzdata
+port: 8000          # TCP port to run on
+storage: state      # Directory to store data, must be writable.
 #+END_SRC
 
 You can also tell ~dixi~ to look elsewhere for a ~config.yml~ by

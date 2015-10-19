@@ -15,6 +15,7 @@ import Data.Proxy
 import Servant.API
 import Servant.HTML.Blaze
 
+import Dixi.Config
 import Dixi.Common
 import Dixi.Page
 import Dixi.PatchUtils
@@ -26,13 +27,14 @@ infixr 8 |:
 (|:) :: a -> b -> a :| b
 (|:) = (:<|>)
 
-data PrettyPage = PP Key Version (Page Text)
-data RawPage    = RP Key Version (Page Text)
-data DiffPage   = DP Key Version Version (Page (Hunks Char))
-data History    = H Key [Page PatchSummary]
 
-data NewBody = NB Text (Maybe Text)
-data RevReq = DR Version Version (Maybe Text)
+data PrettyPage = PP Renders Key Version (Page Text)
+data RawPage    = RP Renders Key Version (Page Text)
+data DiffPage   = DP Renders Key Version Version (Page (Hunks Char))
+data History    = H  Renders Key [Page PatchSummary]
+
+data NewBody    = NB Text (Maybe Text)
+data RevReq     = DR Version Version (Maybe Text)
 
 type HistoryAPI  = Get '[HTML] History
                 :| Capture "version" Version :> VersionAPI

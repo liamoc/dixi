@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ConstraintKinds #-}
@@ -16,11 +17,9 @@ import Data.Maybe    (fromMaybe)
 import Data.Monoid
 import Data.Patch    (Hunks, HunkStatus(..))
 import Data.Proxy
-import Data.Time
 import Data.Text     (Text)
 import Servant.API
 import Servant.HTML.Blaze
-import Data.Time.Locale.Compat
 import Text.Blaze
 import Text.Cassius
 import Text.Hamlet   (shamlet, Html)
@@ -31,6 +30,7 @@ import qualified Data.Text as T
 
 import Dixi.API
 import Dixi.Common
+import Dixi.Config
 import Dixi.Page
 import Dixi.Hamlet
 import Dixi.PatchUtils
@@ -38,9 +38,6 @@ import Dixi.PatchUtils
 link :: (IsElem endpoint Dixi, HasLink endpoint) => Proxy endpoint -> MkLink endpoint
 link = safeLink dixi
 
-renderTime :: Last UTCTime -> String
-renderTime (Last Nothing) = "(never)"
-renderTime (Last (Just t)) = formatTime defaultTimeLocale "%T, %F (%Z)" t
 
 renderTitle :: Text -> Text
 renderTitle = T.pack . map (\c -> if c == '_' then ' ' else c) .  T.unpack
@@ -203,7 +200,7 @@ instance ToMarkup PatchSummary where
 
 
 instance ToMarkup DiffPage where
-  toMarkup (DP k v1 v2 p) = outerMatter (renderTitle k) $ [shamlet| 
+  toMarkup (DP (Renders {..}) k v1 v2 p) = outerMatter (renderTitle k) $ [shamlet| 
     #{pageHeader k vString}
     <div .body>
       <div>
@@ -233,8 +230,8 @@ instance ToMarkup DiffPage where
       vString = ("diff " <> T.pack (show v1) <> " - " <> T.pack (show v2))
 
 instance ToMarkup History where
-  toMarkup (H k []) = outerMatter (renderTitle k) $ pageHeader k "history"
-  toMarkup (H k ps) = outerMatter (renderTitle k) $ [shamlet| 
+  toMarkup (H (Renders {..}) k []) = outerMatter (renderTitle k) $ pageHeader k "history"
+  toMarkup (H (Renders {..}) k ps) = outerMatter (renderTitle k) $ [shamlet| 
     #{pageHeader k "history"}
     <div .body>
      <form method="GET" action="/#{link diffUrl k}">
@@ -297,7 +294,7 @@ instance ToMarkup PandocError where
   toMarkup (ParsecError _ e) = [shamlet| <b> Parse Error: </b> #{show e} |]
 
 instance ToMarkup PrettyPage where
-  toMarkup (PP k v p)
+  toMarkup (PP (Renders {..}) k v p)
     = let
        com = p ^. comment . traverse
        tim = renderTime $ p ^. time
@@ -313,7 +310,7 @@ instance ToMarkup PrettyPage where
          |]
 
 instance ToMarkup RawPage where
-  toMarkup (RP k v p )
+  toMarkup (RP (Renders {..}) k v p )
     = let
        com = p ^. comment . traverse
        bod = p ^. body
