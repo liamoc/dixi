@@ -39,6 +39,7 @@ link :: (IsElem endpoint Dixi, HasLink endpoint) => Proxy endpoint -> MkLink end
 link = safeLink dixi
 
 
+
 renderTitle :: Text -> Text
 renderTitle = T.pack . map (\c -> if c == '_' then ' ' else c) .  T.unpack
 
@@ -298,9 +299,9 @@ instance ToMarkup PrettyPage where
     = let
        com = p ^. comment . traverse
        tim = renderTime $ p ^. time
-       bod = case readOrg def (filter (/= '\r') . T.unpack $ p ^. body) of
+       bod = case pandocReader def (filter (/= '\r') . T.unpack $ p ^. body) of
                Left err -> [shamlet|#{err}|]
-               Right pd -> writeHtml def pd
+               Right pd -> writeHtml pandocWriterOptions pd
     in outerMatter (renderTitle k)
          [shamlet|
            #{versionHeader k v com}
