@@ -2,7 +2,7 @@
 -- see http://haskell.org/cabal/users-guide/
 
 name:                dixi
-version:             0.4.0.0
+version:             0.5.0.0
 synopsis:            A wiki implemented with a firm theoretical foundation.
 description:         This project is a simple wiki developed based on a
                      firm theoretical foundation.
@@ -45,12 +45,14 @@ executable dixi
                      , Dixi.Hamlet
                      , Dixi.Markup
                      , Dixi.Page
+                     , Dixi.Pandoc.Wikilinks
                      , Dixi.PatchUtils
   -- other-extensions:    
   ghc-options:       -Wall
   build-depends:       base >=4.7 && <4.9
                      , composition-tree >= 0.2.0.1 && < 0.3, patches-vector >= 0.1.2 && < 0.2
-                     , pandoc >= 1.15 &&  < 1.16 , servant >= 0.4 && < 0.5
+                     , pandoc >= 1.15 &&  < 1.16 , pandoc-types >= 1.12 && < 1.13
+                     , servant >= 0.4 && < 0.5
                      , acid-state >= 0.12 && <0.14 , safecopy >= 0.8.3 && < 0.9
                      , lens >= 4.12 && < 4.14, servant-server >= 0.4 && < 0.5
                      , blaze-html >= 0.8 && < 0.9 , servant-blaze >= 0.4 && < 0.5, blaze-markup >= 0.7 && <0.8
@@ -69,6 +71,7 @@ executable dixi
                      , time-locale-compat >= 0.1 && < 0.2
                      , tz >= 0.0 && < 0.1
                      , bytestring >= 0.10 && < 0.11
+                     , network-uri >= 2.6 && < 2.7 
 
   -- hs-source-dirs:      
   default-language:    Haskell2010

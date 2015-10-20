@@ -60,7 +60,9 @@ readerFormat: org           # Pandoc format to use. Can be any of:
                             #   commonmark, rst, markdown, mediawiki,
                             #   docbook, opml, org, textile, html,
                             #   latex, haddock, twiki, t2t
-url: http://localhost:8000/ # base url of your application, for links
+url: http://localhost:8000  # base url of your application, for links
+processors:                 # a list of pandoc document processors to use
+- wikilinks                 # right now, we only have the wikilinks processor
 #+END_SRC
 
 You can also tell ~dixi~ to look elsewhere for a ~config.yml~ by
@@ -76,7 +78,19 @@ Other pages are located at ~/Page_Title~. Underscores are displayed as spaces in
 in the URL are converted to underscores.
 
 The page text itself defaults to the format of Emacs' [[http://orgmode.org][Org Mode]], as read by [[http://pandoc.org][pandoc]], however this can be
-customised.
+customised. 
+
+Internal wikilinks can be made by making a link that goes nowhere, or by using built-in wiki syntax if your
+input format supports it
+
+#+BEGIN_EXAMPLE
+  [[][a wikilink]]              (for org mode)
+  [a wikilink]()                (for markdown)
+  [[a wikilink]]                (for mediawiki)
+  [[a wikilink|Custom title]]   (for mediawiki)
+#+END_EXAMPLE
+
+This processing can be disabled by removing the ~wikilinks~ processor in the list in the configuration file.
 
 ** Future Work
 

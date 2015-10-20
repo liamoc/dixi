@@ -14,6 +14,7 @@ import Data.Patch
 import Data.Proxy
 import Servant.API
 import Servant.HTML.Blaze
+import Text.Hamlet (Html)
 
 import Dixi.Config
 import Dixi.Common
@@ -28,7 +29,7 @@ infixr 8 |:
 (|:) = (:<|>)
 
 
-data PrettyPage = PP Renders Key Version (Page Text)
+data PrettyPage = PP Renders Key Version (Page Html)
 data RawPage    = RP Renders Key Version (Page Text)
 data DiffPage   = DP Renders Key Version Version (Page (Hunks Char))
 data History    = H  Renders Key [Page PatchSummary]

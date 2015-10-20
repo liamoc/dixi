@@ -23,7 +23,6 @@ import Servant.HTML.Blaze
 import Text.Blaze
 import Text.Cassius
 import Text.Hamlet   (shamlet, Html)
-import Text.Pandoc
 import Text.Pandoc.Error
 
 import qualified Data.Text as T
@@ -294,19 +293,19 @@ instance ToMarkup PandocError where
   toMarkup (ParseFailure s)  = [shamlet| <b> Parse Failure: </b> #{s}|]
   toMarkup (ParsecError _ e) = [shamlet| <b> Parse Error: </b> #{show e} |]
 
+writePandocError :: PandocError -> Html
+writePandocError err = [shamlet|#{err}|]
+
 instance ToMarkup PrettyPage where
   toMarkup (PP (Renders {..}) k v p)
     = let
        com = p ^. comment . traverse
        tim = renderTime $ p ^. time
-       bod = case pandocReader def (filter (/= '\r') . T.unpack $ p ^. body) of
-               Left err -> [shamlet|#{err}|]
-               Right pd -> writeHtml pandocWriterOptions pd
     in outerMatter (renderTitle k)
          [shamlet|
            #{versionHeader k v com}
            <div .body>
-             #{bod}
+             #{p ^. body}
            <div .timestamp> This version was last edited at #{tim}
          |]
 

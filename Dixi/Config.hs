@@ -5,12 +5,14 @@ module Dixi.Config ( Config (Config, port, storage)
                    , Renders (..)
                    , defaultConfig
                    , configToRenders
+                   , EndoIO (..)
                    ) where
 
+import Control.Monad ((<=<))
 import Data.Aeson
 import Data.Default
-import Data.Maybe (fromMaybe)
-import Data.Monoid (Last (..))
+import Data.Maybe (fromMaybe, catMaybes)
+import Data.Monoid (Last (..), Monoid (..))
 import Data.Time (UTCTime, formatTime)
 import Data.Time.Locale.Compat
 import Data.Time.Zones.All (toTZName, fromTZName, tzByLabel, TZLabel (..))
@@ -20,6 +22,7 @@ import Text.Pandoc hiding (Format, readers)
 import Text.Pandoc.Error
 import qualified Data.ByteString.Char8 as B
 
+import Dixi.Pandoc.Wikilinks
 
 newtype Format = Format String deriving (Generic, Show)
 
@@ -33,6 +36,7 @@ data Config = Config
             , time :: TimeConfig
             , readerFormat :: Format
             , url :: String
+            , processors :: [String]
             } deriving (Generic, Show)
 
 instance FromJSON Config where
@@ -44,14 +48,25 @@ instance ToJSON   Format where
 
 type PureReader = ReaderOptions -> String -> Either PandocError Pandoc
 
+newtype EndoIO x = EndoIO { runEndoIO :: x -> IO x }
+
+instance Monoid (EndoIO a) where
+  mempty = EndoIO return
+  EndoIO a `mappend` EndoIO b = EndoIO (a <=< b)
+
 data Renders = Renders
    { renderTime :: Last UTCTime -> String
    , pandocReader :: PureReader
    , pandocWriterOptions :: WriterOptions
+   , pandocProcessors :: EndoIO Pandoc
    }
 
 defaultConfig :: Config
-defaultConfig = Config 8000 "state" (TimeConfig (B.unpack $ toTZName Etc__UTC) "%T, %F") (Format "org") ("http://localhost:8000/")
+defaultConfig = Config 8000 "state"
+                       (TimeConfig (B.unpack $ toTZName Etc__UTC) "%T, %F")
+                       (Format "org")
+                       ("http://localhost:8000")
+                       ["wikilinks"]
 
 readers :: [(String, PureReader)]
 readers = [ ("native"       , const readNative)
@@ -70,8 +85,14 @@ readers = [ ("native"       , const readNative)
            ,("twiki"        , readTWiki)
            ,("t2t"          , readTxt2TagsNoMacros)
            ]
+
+allProcessors :: Config -> [(String, EndoIO Pandoc)]
+allProcessors Config {..}
+              = [("wikilinks", EndoIO $ wikilinks url)
+                ]
+
 configToRenders :: Config -> Renders
-configToRenders Config {..} = Renders {..}
+configToRenders cfg@(Config {..}) = Renders {..}
   where renderTime (Last Nothing) = "(never)"
         renderTime (Last (Just t)) = let label = fromMaybe Etc__UTC (fromTZName $ B.pack $ timezone time)
                                       in formatTime defaultTimeLocale (format time) $ utcToLocalTimeTZ (tzByLabel label) t
@@ -80,3 +101,5 @@ configToRenders Config {..} = Renders {..}
               Just r -> r
               Nothing -> readOrg
         pandocWriterOptions = def { writerSourceURL = Just url }
+
+        pandocProcessors = mconcat $ catMaybes $ map (flip lookup $ allProcessors cfg) processors
