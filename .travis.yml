@@ -18,10 +18,10 @@ env:
 sudo: false
 
 install:
+ - export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH;
  - travis_retry cabal update
  - if [[ `git log --format=%B -n 1 $TRAVIS_COMMIT` == *\[deps\]* ]]; then rm -rf ~/sandbox$USE_LTS_HASKELL; fi
  - mkdir -p ~/sandbox$USE_LTS_HASKELL
- - export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH;
  - if [[ `ghc --numeric-version` == 7.4.* ]]; then
      wget http://downloads.haskell.org/~ghc/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
      tar -xJvf ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
@@ -30,6 +30,7 @@ install:
      make install;
      cabal install cabal-install;
      cp ~/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/;
+     cabal update;
      cd ..;
    fi
  - if [[ `ghc --numeric-version` == 7.8.* ]]; then
