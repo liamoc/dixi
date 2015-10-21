@@ -23,7 +23,7 @@ install:
  - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
  - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
  - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
- - mkdir ~/sandbox
+ - mkdir -p ~/sandbox
  - cd ~/sandbox
  - cabal sandbox init
  - cd -
