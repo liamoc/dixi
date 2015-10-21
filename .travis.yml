@@ -34,7 +34,7 @@ install:
    fi
  - if [[ `ghc --numeric-version` == 7.8.* ]]; then
      STACKAGESNAPSHOT=;
-     export USE_LTS_HASKELL=; # can't build against lts-2, switch to no lts.
+     export USE_LTS_HASKELL=; 
    fi
  - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
  - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
