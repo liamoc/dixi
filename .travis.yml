@@ -19,7 +19,7 @@ sudo: false
 
 install:
   - wget https://www.stackage.org/stack/linux-x86_64
-  - tar -zxvf stack*.tar.gz
+  - tar -zxvf linux-x86_64
   - mv stack* stack
   - export PATH=`pwd`/stack:$PATH
   - stack --version 
