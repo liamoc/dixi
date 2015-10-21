@@ -27,7 +27,7 @@ install:
      ./configure --prefix=$HOME/sandbox;
      make install;
      export PATH=$HOME/sandbox/bin:$PATH;
-     cd -;
+     cd ..;
    fi
  - if [[ `ghc --numeric-version` == 7.8.* ]]; then STACKAGESNAPSHOT=lts-2; fi
  - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
@@ -35,7 +35,7 @@ install:
  - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
  - cd ~/sandbox
  - cabal sandbox init
- - cd ..
+ - cd -
  - cp ~/sandbox/cabal.sandbox.config .
  - cabal install text
  - cabal install -j2 --only-dependencies --enable-tests --enable-benchmarks
