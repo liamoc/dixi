@@ -32,7 +32,10 @@ install:
      cp ~/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/;
      cd ..;
    fi
- - if [[ `ghc --numeric-version` == 7.8.* ]]; then STACKAGESNAPSHOT=lts-2; fi
+ - if [[ `ghc --numeric-version` == 7.8.* ]]; then
+     STACKAGESNAPSHOT=;
+     export USE_LTS_HASKELL=; # can't build against lts-2, switch to no lts.
+   fi
  - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
  - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
  - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
