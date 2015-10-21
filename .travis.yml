@@ -19,9 +19,9 @@ sudo: false
 
 install:
  - travis_retry cabal update
- - if [[ `ghc --numeric-version` == 7.8.* ]]; then STACKAGESNAPSHOT=lts-2
- - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3
- - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=
+ - if [[ `ghc --numeric-version` == 7.8.* ]]; then STACKAGESNAPSHOT=lts-2; fi
+ - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
+ - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
  - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
  - cabal install -j2 --only-dependencies --enable-tests --enable-benchmarks
 
