@@ -31,7 +31,6 @@ install:
      cd ghc-7.10.2;
      ./configure --prefix=$HOME/sandbox$USE_LTS_HASKELL;
      make install;
-     cabal install Cabal-1.22;
      cabal install cabal-install;
      cp ~/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/;
      ghc-pkg init;
@@ -54,6 +53,8 @@ cache:
 # Here starts the actual work to be performed for the package under test; any
 # command which exits with a non-zero exit code causes the build to fail.
 script:
+ - if [[ `ghc --numeric-version` == 7.4.* ]]; then
+     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi
  - cabal configure --enable-tests --enable-benchmarks -v2
  - cabal build
  - cabal check
