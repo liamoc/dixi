@@ -43,7 +43,6 @@ install:
  - cabal sandbox init
  - cd -
  - cp ~/sandbox$USE_LTS_HASKELL/cabal.sandbox.config .
- - cabal install text
  - cabal install -j2 --only-dependencies --enable-tests --enable-benchmarks
 
 cache:
