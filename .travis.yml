@@ -24,7 +24,10 @@ install:
   - export PATH=`pwd`/stack:$PATH
   - stack --version 
   - stack setup --resolver $RESOLVER
-  - stack build --resolver $RESOLVER
+  - if ! stack build --resolver $RESOLVER; then
+      stack solver --resolver $RESOLVER;
+      stack build --resolver $RESOLVER;
+    fi
 
 cache:
   directories:
