@@ -3,44 +3,38 @@ notifications:
     on_success: change
     on_failure: change
 
+language: haskell
+ghc:
+- 7.8
+- 7.10
+
 # The following enables several GHC versions to be tested; often it's enough to
 # test only against the last release in a major GHC version. Feel free to omit
 # lines listings versions you don't need/want testing for.
 env:
-# - CABALVER=1.16 GHCVER=7.4.2
-# - CABALVER=1.18 GHCVER=7.6.3
- - CABALVER=1.18 GHCVER=7.8.3
- - CABALVER=1.22 GHCVER=7.10.2
- - CABALVER=1.22 GHCVER=7.10.2 STACKAGESNAPSHOT=lts-3
+ - USE_LTS_HASKELL=true
+ - NOSNAPSHOT=true
 
-before_install:
- # If $GHCVER is the one travis has, don't bother reinstalling it.
- # We can also have faster builds by installing some libraries with
- # `apt`. If it isn't, install the GHC we want from hvr's PPA along
- # with cabal-1.18.
- - |
-   if [ $GHCVER = `ghc --numeric-version` ]; then
-     travis/cabal-apt-install --enable-tests $MODE
-     export CABAL=cabal
-   else
-     travis_retry sudo add-apt-repository -y ppa:hvr/ghc
-     travis_retry sudo apt-get update
-     travis_retry sudo apt-get install cabal-install-$CABALVER ghc-$GHCVER
-     export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH
-   fi
+sudo: false
+
 install:
- - cabal --version
- - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
  - travis_retry cabal update
- - if [ -n "STACKAGESNAPSHOT" ]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
+ - if [[ `ghc --numeric-version` == 7.8.* ]]; then STACKAGESNAPSHOT=lts-2
+ - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3
+ - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=
+ - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
  - cabal install -j2 --only-dependencies --enable-tests --enable-benchmarks
+
+cache:
+  directories:
+    - $HOME/.cabal
+    - $HOME/.ghc
 
 # Here starts the actual work to be performed for the package under test; any
 # command which exits with a non-zero exit code causes the build to fail.
 script:
  - cabal configure --enable-tests --enable-benchmarks -v2
  - cabal build
-# - cabal test
  - cabal check
  - cabal sdist
  - export SRC_TGZ=$(cabal info . | awk '{print $2 ".tar.gz";exit}') ;
