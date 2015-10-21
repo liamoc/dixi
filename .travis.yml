@@ -19,11 +19,19 @@ sudo: false
 
 install:
  - travis_retry cabal update
+ - mkdir -p ~/sandbox
+ - if [[ `ghc --numeric-version` == 7.4.* ]]; then;
+     wget http://downloads.haskell.org/~ghc/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
+     tar -xJvf ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
+     cd ghc-7.10.2;
+     ./configure --prefix=~/sandbox;
+     make install;
+     export PATH=$HOME/sandbox/bin:$PATH;
+   fi
  - if [[ `ghc --numeric-version` == 7.8.* ]]; then STACKAGESNAPSHOT=lts-2; fi
  - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
  - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
  - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
- - mkdir -p ~/sandbox
  - cd ~/sandbox
  - cabal sandbox init
  - cd -
