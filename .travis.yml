@@ -20,7 +20,7 @@ sudo: false
 install:
  - travis_retry cabal update
  - mkdir -p ~/sandbox
- - if [[ `ghc --numeric-version` == 7.4.* ]]; then;
+ - if [[ `ghc --numeric-version` == 7.4.* ]]; then
      wget http://downloads.haskell.org/~ghc/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
      tar -xJvf ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
      cd ghc-7.10.2;
