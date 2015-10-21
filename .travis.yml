@@ -53,9 +53,17 @@ cache:
 # Here starts the actual work to be performed for the package under test; any
 # command which exits with a non-zero exit code causes the build to fail.
 script:
+ - cabal --version
+ - ghc --version
  - if [[ `ghc --numeric-version` == 7.4.* ]]; then
-     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi
- - cabal configure --enable-tests --enable-benchmarks -v2
- - cabal build
- - cabal check
- - cabal sdist
+     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
+   cabal configure --enable-tests --enable-benchmarks -v2
+ - if [[ `ghc --numeric-version` == 7.4.* ]]; then
+     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
+   cabal build
+ - if [[ `ghc --numeric-version` == 7.4.* ]]; then
+     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
+   cabal check
+ - if [[ `ghc --numeric-version` == 7.4.* ]]; then
+     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
+   cabal sdist
