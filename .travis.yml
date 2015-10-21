@@ -24,7 +24,7 @@ install:
      wget http://downloads.haskell.org/~ghc/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
      tar -xJvf ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
      cd ghc-7.10.2;
-     ./configure --prefix=~/sandbox;
+     ./configure --prefix=$HOME/sandbox;
      make install;
      export PATH=$HOME/sandbox/bin:$PATH;
    fi
