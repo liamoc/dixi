@@ -19,6 +19,7 @@ sudo: false
 
 install:
  - travis_retry cabal update
+ - if [[ `git log --format=%B -n 1 $TRAVIS_COMMIT` == *\[deps\]* ]]; then rm -rf ~/sandbox; fi
  - mkdir -p ~/sandbox
  - if [[ `ghc --numeric-version` == 7.4.* ]]; then
      wget http://downloads.haskell.org/~ghc/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
