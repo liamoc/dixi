@@ -23,7 +23,6 @@ install:
  - mkdir -p ~/sandbox$USE_LTS_HASKELL
  - if [[ `ghc --numeric-version` == 7.8.* ]]; then
      STACKAGESNAPSHOT=;
-     export USE_LTS_HASKELL=; 
    fi
  - if [[ `ghc --numeric-version` == 7.4.* ]]; then
      export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH;
