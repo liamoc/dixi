@@ -44,6 +44,13 @@ cabal build
 ./dist/build/dixi/dixi
 #+END_SRC
 
+If you prefer, you can also use ~stack~ rather than ~cabal~.
+
+#+BEGIN_SRC sh
+stack build
+stack exec dixi
+#+END_SRC
+
 The configuration file is in YAML format, and by default should
 exist under ~config.yml~ in the current directory. Happily, ~dixi~ will prompt
 you to create a file with the default configuration if it can't find the file.
