@@ -23,12 +23,16 @@ install:
  - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
  - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
  - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
+ - mkdir ~/sandbox
+ - cd ~/sandbox
+ - cabal sandbox init
+ - cd -
+ - cp ~/sandbox/cabal.sandbox.config .
  - cabal install -j2 --only-dependencies --enable-tests --enable-benchmarks
 
 cache:
   directories:
-    - $HOME/.cabal
-    - $HOME/.ghc
+    - $HOME/sandbox
 
 # Here starts the actual work to be performed for the package under test; any
 # command which exits with a non-zero exit code causes the build to fail.
