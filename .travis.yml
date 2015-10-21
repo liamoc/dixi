@@ -31,6 +31,7 @@ install:
      cd ghc-7.10.2;
      ./configure --prefix=$HOME/sandbox$USE_LTS_HASKELL;
      make install;
+     cabal install Cabal-1.22;
      cabal install cabal-install;
      cp ~/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/;
      ghc-pkg init;
