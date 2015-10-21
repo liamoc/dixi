@@ -11,16 +11,15 @@ module Dixi.Config ( Config (Config, port, storage)
 import Control.Monad ((<=<))
 import Data.Aeson
 import Data.Default
-import Data.Maybe (fromMaybe, catMaybes)
+import Data.Maybe (catMaybes)
 import Data.Monoid (Last (..), Monoid (..))
 import Data.Time (UTCTime, formatTime)
 import Data.Time.Locale.Compat
-import Data.Time.Zones.All (toTZName, fromTZName, tzByLabel, TZLabel (..))
-import Data.Time.Zones (utcToLocalTimeTZ)
+import Data.Time.LocalTime.TimeZone.Olson
+import Data.Time.LocalTime.TimeZone.Series
 import GHC.Generics
 import Text.Pandoc hiding (Format, readers)
 import Text.Pandoc.Error
-import qualified Data.ByteString.Char8 as B
 
 import Dixi.Pandoc.Wikilinks
 
@@ -63,7 +62,7 @@ data Renders = Renders
 
 defaultConfig :: Config
 defaultConfig = Config 8000 "state"
-                       (TimeConfig (B.unpack $ toTZName Etc__UTC) "%T, %F")
+                       (TimeConfig "Etc/UTC" "%T, %F")
                        (Format "org")
                        ("http://localhost:8000")
                        ["wikilinks"]
@@ -91,15 +90,16 @@ allProcessors Config {..}
               = [("wikilinks", EndoIO $ wikilinks url)
                 ]
 
-configToRenders :: Config -> Renders
-configToRenders cfg@(Config {..}) = Renders {..}
-  where renderTime (Last Nothing) = "(never)"
-        renderTime (Last (Just t)) = let label = fromMaybe Etc__UTC (fromTZName $ B.pack $ timezone time)
-                                      in formatTime defaultTimeLocale (format time) $ utcToLocalTimeTZ (tzByLabel label) t
-        pandocReader | Format f <- readerFormat 
-          = case lookup f readers of
-              Just r -> r
-              Nothing -> readOrg
-        pandocWriterOptions = def { writerSourceURL = Just url }
+configToRenders :: Config -> IO Renders
+configToRenders cfg@(Config {..}) = do
+  olsonData <- getTimeZoneSeriesFromOlsonFile ("/usr/share/zoneinfo/" ++ timezone time)
+  let renderTime (Last Nothing) = "(never)"
+      renderTime (Last (Just t)) = formatTime defaultTimeLocale (format time) $ utcToLocalTime' olsonData t
+      pandocReader | Format f <- readerFormat 
+        = case lookup f readers of
+            Just r -> r
+            Nothing -> readOrg
+      pandocWriterOptions = def { writerSourceURL = Just url }
 
-        pandocProcessors = mconcat $ catMaybes $ map (flip lookup $ allProcessors cfg) processors
+      pandocProcessors = mconcat $ catMaybes $ map (flip lookup $ allProcessors cfg) processors
+  return $ Renders {..}

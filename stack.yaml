@@ -1,7 +1,5 @@
 flags: {}
 packages:
 - '.'
-extra-deps: 
-- tz-0.0.0.10
-- tzdata-0.1.20150810.0
+extra-deps: []
 resolver: lts-3.9

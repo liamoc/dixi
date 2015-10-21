@@ -40,8 +40,8 @@ import Dixi.Page
 spacesToUScores :: T.Text -> T.Text
 spacesToUScores = T.pack . map (\x -> if x == ' ' then '_' else x) . T.unpack
 
-page :: AcidState Database -> Config -> Key -> Server PageAPI
-page db cfg (spacesToUScores -> key)
+page :: AcidState Database -> Renders -> Key -> Server PageAPI
+page db renders (spacesToUScores -> key)
   =  latest
   |: history
   where
@@ -77,9 +77,8 @@ page db cfg (spacesToUScores -> key)
 
     rp k v p = return (RP renders k v p)
 
-    renders = configToRenders cfg
 
-server :: AcidState Database -> Config -> Server Dixi
+server :: AcidState Database -> Renders -> Server Dixi
 server db cfg =  page db cfg
               |: page db cfg "Main_Page"
 
@@ -109,4 +108,4 @@ main = getArgs >>= main'
      db <- openLocalStateFrom storage emptyDB
      createCheckpoint db
      createArchive    db
-     run port $ serve dixi $ server db cfg
+     run port . serve dixi . server db =<< configToRenders cfg
