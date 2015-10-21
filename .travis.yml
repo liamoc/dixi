@@ -33,6 +33,7 @@ install:
      make install;
      cabal install cabal-install;
      cp ~/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/;
+     ghc-pkg init;
      cabal update;
      cd ..;
    fi
