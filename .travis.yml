@@ -5,65 +5,32 @@ notifications:
 
 language: haskell
 ghc:
-- 7.8
-- '7.10'
+- 7.4
 
 # The following enables several GHC versions to be tested; often it's enough to
 # test only against the last release in a major GHC version. Feel free to omit
 # lines listings versions you don't need/want testing for.
 env:
- - USE_LTS_HASKELL=lts
- - NOSNAPSHOT=true
+ - RESOLVER=lts-3
+ - RESOLVER=nightly
+ - RESOLVER=ghc-7.8.4
 
 sudo: false
 
 install:
- - travis_retry cabal update
- - if [[ `git log --format=%B -n 1 $TRAVIS_COMMIT` == *\[deps\]* ]]; then rm -rf ~/sandbox$USE_LTS_HASKELL; fi
- - mkdir -p ~/sandbox$USE_LTS_HASKELL
- - if [[ `ghc --numeric-version` == 7.8.* ]]; then
-     STACKAGESNAPSHOT=;
-   fi
- - if [[ `ghc --numeric-version` == 7.4.* ]]; then
-     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH;
-     wget http://downloads.haskell.org/~ghc/7.10.2/ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
-     tar -xJvf ghc-7.10.2-x86_64-unknown-linux-deb7.tar.xz;
-     cd ghc-7.10.2;
-     ./configure --prefix=$HOME/sandbox$USE_LTS_HASKELL;
-     make install;
-     cabal install -v cabal-install;
-     echo cp ~/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/cabal;
-     cp $HOME/.cabal/bin/cabal $HOME/sandbox$USE_LTS_HASKELL/bin/cabal;
-     cabal update;
-     cd ..;
-   fi
- - if [[ `ghc --numeric-version` == 7.10.* ]]; then STACKAGESNAPSHOT=lts-3;fi
- - if [[ -n "$NOSNAPSHOT" ]]; then STACKAGESNAPSHOT=; fi
- - if [[ -n "$STACKAGESNAPSHOT" ]]; then curl -L --silent https://www.stackage.org/$STACKAGESNAPSHOT/cabal.config | grep -v 'dixi ==' > cabal.config; fi
- - cd ~/sandbox$USE_LTS_HASKELL
- - cabal sandbox init
- - cd -
- - cp ~/sandbox$USE_LTS_HASKELL/cabal.sandbox.config .
- - cabal install -j2 --only-dependencies --enable-tests --enable-benchmarks
+  - wget https://www.stackage.org/stack/linux-x86_64
+  - tar -zxvf stack*.tar.gz
+  - mv stack* stack
+  - export PATH=`pwd`/stack:$PATH
+  - stack --version 
+  - stack setup --resolver $RESOLVER
+  - stack build --resolver $RESOLVER
 
 cache:
   directories:
-    - $HOME/sandbox$USE_LTS_HASKELL
+    - $HOME/.stack
 
 # Here starts the actual work to be performed for the package under test; any
 # command which exits with a non-zero exit code causes the build to fail.
 script:
- - cabal --version
- - ghc --version
- - if [[ `ghc --numeric-version` == 7.4.* ]]; then
-     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
-   cabal configure --enable-tests --enable-benchmarks -v2
- - if [[ `ghc --numeric-version` == 7.4.* ]]; then
-     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
-   cabal build
- - if [[ `ghc --numeric-version` == 7.4.* ]]; then
-     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
-   cabal check
- - if [[ `ghc --numeric-version` == 7.4.* ]]; then
-     export PATH=$HOME/sandbox$USE_LTS_HASKELL/bin:$PATH; fi;
-   cabal sdist
+  - echo "This will either error or succeed, we're just testing the build"
