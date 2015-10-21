@@ -25,7 +25,7 @@ install:
   - stack --version 
   - stack setup --resolver $RESOLVER
   - if ! stack build --resolver $RESOLVER; then
-      stack solver --resolver $RESOLVER --modify-stack-yaml;
+      stack solver --modify-stack-yaml --resolver $RESOLVER;
       stack build --resolver $RESOLVER;
     fi
 
