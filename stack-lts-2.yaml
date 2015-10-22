@@ -13,6 +13,7 @@ extra-deps:
 - pandoc-1.15.1.1
 - cmark-0.4.1
 - highlighting-kate-0.6
+- base-orphans-0.4.4
 resolver: lts-2.22
 flags: 
   dixi:
