@@ -2,7 +2,7 @@
 -- see http://haskell.org/cabal/users-guide/
 
 name:                dixi
-version:             0.5.1.0
+version:             0.5.1.1
 synopsis:            A wiki implemented with a firm theoretical foundation.
 description:         This project is a simple wiki developed based on a
                      firm theoretical foundation.
