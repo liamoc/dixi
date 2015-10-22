@@ -10,4 +10,5 @@ extra-deps:
 - servant-server-0.4.4.5
 - acid-state-0.13.0
 - microlens-0.3.4.1
+- pandoc-1.15.1.1
 resolver: lts-2.22
