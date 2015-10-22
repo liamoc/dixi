@@ -55,6 +55,7 @@ executable dixi
   ghc-options:       -Wall
   if flag(old-base)
      build-depends: base >= 4.7 && < 4.8, base-orphans >= 0.4 && < 0.5
+     ghc-options: -DOLD_BASE
   else
      build-depends: base >= 4.8 && < 4.9
   build-depends:       composition-tree >= 0.2.0.1 && < 0.3, patches-vector >= 0.1.2 && < 0.2

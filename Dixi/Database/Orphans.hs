@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE CPP                #-}
 {-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -16,6 +17,9 @@ import Data.Monoid
 import Data.Patch.Internal
 import Data.SafeCopy
 import Data.Traversable
+#ifdef OLDBASE
+import Data.Orphans()
+#endif
 
 deriveSafeCopy 0 'base ''Node
 deriveSafeCopy 0 'base ''C.Compositions
