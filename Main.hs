@@ -1,23 +1,21 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE PolyKinds         #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE TypeOperators     #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE ViewPatterns      #-}
+{-# LANGUAGE ConstraintKinds   #-}
 
-import Control.Applicative
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Either
-import Control.Lens
 import Data.Acid
 import Data.Default
 import Data.Time
 import Data.Text (Text)
+import Data.Traversable
 import Network.Wai.Handler.Warp
 import Servant
 import System.Directory
@@ -25,6 +23,11 @@ import System.Environment
 import System.Exit
 import System.IO
 import Text.Pandoc
+
+#ifdef OLDBASE
+import Control.Applicative
+import Control.Lens
+#endif
 
 import qualified Data.Yaml as Y
 import qualified Data.Text as T
@@ -47,10 +50,10 @@ page db renders (spacesToUScores -> key)
   where
     latest  =  latestQ pp |: latestQ rp
 
-    diffPages (Just v1) (Just v2) = do liftIO $ DP renders key v1 v2 <$> query db (GetDiff key (v1, v2))
+    diffPages (Just v1) (Just v2) = liftIO $ DP renders key v1 v2 <$> query db (GetDiff key (v1, v2))
     diffPages _ _ = left err400
 
-    history =  do liftIO $ H renders key <$> query db (GetHistory key)
+    history =  liftIO (H renders key <$> query db (GetHistory key))
             |: version
             |: diffPages
             |: reversion
@@ -60,7 +63,7 @@ page db renders (spacesToUScores -> key)
       latestQ pp
     version v =  (versionQ pp v |: versionQ rp v)
               |: updateVersion v
-    updateVersion v (NB t c) = do _ <- liftIO $ (getCurrentTime >>= update db . Amend key v t c)
+    updateVersion v (NB t c) = do _ <- liftIO (getCurrentTime >>= update db . Amend key v t c)
                                   latestQ pp
 
     latestQ :: (Key -> Version -> Page Text -> IO a) -> EitherT ServantErr IO a
@@ -70,7 +73,7 @@ page db renders (spacesToUScores -> key)
     versionQ p v = liftIO (p key v =<< query db (GetVersion key v))
 
     pp :: Key -> Version -> Page Text -> IO PrettyPage
-    pp k v p = fmap (PP renders k v) $ flip traverse p $ \b ->
+    pp k v p = fmap (PP renders k v) $ for p $ \b ->
                  case pandocReader renders def (filter (/= '\r') . T.unpack $ b) of
                    Left err -> return $ writePandocError err
                    Right pd -> writeHtml (pandocWriterOptions renders) <$> runEndoIO (pandocProcessors renders) pd
@@ -94,9 +97,9 @@ main = getArgs >>= main'
        putStrLn "Configuration file not found, would you like to [c]reate one, [r]un with default configuration or e[x]it?"
        hSetBuffering stdin NoBuffering
        getChar >>= \i -> case i of
-         _ | i `elem` ['c','C'] -> Y.encodeFile x defaultConfig >> main'' (Right defaultConfig)
-         _ | i `elem` ['r','R'] -> main'' (Right defaultConfig)
-         _ | otherwise          -> exitFailure
+         _ | i `elem` ("cC" :: String) -> Y.encodeFile x defaultConfig >> main'' (Right defaultConfig)
+           | i `elem` ("rR" :: String) -> main'' (Right defaultConfig)
+           | otherwise                 -> exitFailure
    main' _ = do
      p <- getProgName
      hPutStrLn stderr $ "usage:\n   " ++ p ++ " [/path/to/config.yml]"

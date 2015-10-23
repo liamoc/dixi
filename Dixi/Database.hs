@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE RankNTypes         #-}
+{-# LANGUAGE CPP                #-}
 module Dixi.Database
        ( Database , emptyDB
        , Amend (..)
@@ -12,7 +13,6 @@ module Dixi.Database
        , Revert (..)
        ) where
 
-import Control.Applicative
 import Control.Lens
 import Data.Acid
 import Data.Compositions.Snoc (Compositions)
@@ -25,6 +25,10 @@ import Data.SafeCopy hiding (Version)
 import Data.Text (Text)
 import Data.Time
 import Data.Typeable
+
+#ifdef OLDBASE
+import Control.Applicative
+#endif
 
 import qualified Data.Compositions.Snoc as C
 import qualified Data.Patch             as P
@@ -48,7 +52,7 @@ makeLenses ''Database
 
 getLatest :: Key -> Query Database (Version, Page Text)
 getLatest k = do
-  b <- (view (db . ix k))
+  b <- view (db . ix k)
   return (C.length b, patchToText <$> C.composed b)
 
 getVersion :: Key -> Version -> Query Database (Page Text)
@@ -64,9 +68,9 @@ getDiff k (v1 , v2) | v1 > v2   = getDiff k (v2, v1)
                     | otherwise = do
   b <- view (db . ix k)
   let y = patchToVector (C.composed (C.take v1 b) ^. body)
-  return $ fmap (\z -> P.hunks z y) (C.dropComposed v1 (C.take v2 b)) 
+  return $ fmap (`P.hunks` y) (C.dropComposed v1 (C.take v2 b)) 
 
-amendPatch :: Key -> Version -> Patch Char -> Maybe Text -> UTCTime -> Update Database (Version)
+amendPatch :: Key -> Version -> Patch Char -> Maybe Text -> UTCTime -> Update Database Version
 amendPatch k v q com tim = do
   (db . at k) %= \mb ->
     let b = fromMaybe mempty mb
@@ -75,7 +79,7 @@ amendPatch k v q com tim = do
      in Just (C.snoc b (Page r (Last com) (Last $ Just tim)))
   C.length <$> use (db . ix k)
 
-amend :: Key -> Version -> Text -> Maybe Text -> UTCTime -> Update Database (Version)
+amend :: Key -> Version -> Text -> Maybe Text -> UTCTime -> Update Database Version
 amend k v new com tim = do
   b <- use (db . ix k)
   let n = V.fromList (T.unpack new)

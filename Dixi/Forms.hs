@@ -1,10 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP               #-}
 {-# OPTIONS -fno-warn-orphans  #-}
 module Dixi.Forms where
 
-import Control.Applicative
 import Servant.API
 import Text.Read
+
+#ifdef OLDBASE
+import Control.Applicative
+#endif
 
 import qualified Data.Text as T
 

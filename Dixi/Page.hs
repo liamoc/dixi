@@ -5,15 +5,18 @@
 {-# LANGUAGE DeriveFoldable     #-}
 {-# LANGUAGE DeriveTraversable  #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE CPP                #-}
 module Dixi.Page where
 
 import Control.Lens
 import Data.Data
-import Data.Foldable
 import Data.Monoid
 import Data.SafeCopy
 import Data.Text
 import Data.Time
+#ifdef OLDBASE
+import Data.Foldable
+#endif
 
 import Dixi.Database.Orphans ()
 

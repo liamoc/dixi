@@ -12,12 +12,12 @@ import Control.Lens ()
 import Data.Compositions.Internal      as C
 import Data.Compositions.Snoc.Internal as S
 import Data.Data
-import Data.Foldable
 import Data.Monoid
 import Data.Patch.Internal
 import Data.SafeCopy
-import Data.Traversable
 #ifdef OLDBASE
+import Data.Foldable
+import Data.Traversable
 import Data.Orphans()
 #endif
 

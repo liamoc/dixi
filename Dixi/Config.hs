@@ -11,8 +11,8 @@ module Dixi.Config ( Config (Config, port, storage)
 import Control.Monad ((<=<))
 import Data.Aeson
 import Data.Default
-import Data.Maybe (catMaybes)
-import Data.Monoid (Last (..), Monoid (..))
+import Data.Maybe (mapMaybe, fromMaybe)
+import Data.Monoid
 import Data.Time (UTCTime, formatTime)
 import Data.Time.Locale.Compat
 import Data.Time.LocalTime.TimeZone.Olson
@@ -64,30 +64,30 @@ defaultConfig :: Config
 defaultConfig = Config 8000 "state"
                        (TimeConfig "Etc/UTC" "%T, %F")
                        (Format "org")
-                       ("http://localhost:8000")
+                       "http://localhost:8000"
                        ["wikilinks"]
 
 readers :: [(String, PureReader)]
 readers = [ ("native"       , const readNative)
-           ,("json"         , readJSON )
-           ,("commonmark"   , readCommonMark)
-           ,("rst"          , readRST)
-           ,("markdown"     , readMarkdown)
-           ,("mediawiki"    , readMediaWiki)
-           ,("docbook"      , readDocBook)
-           ,("opml"         , readOPML)
-           ,("org"          , readOrg)
-           ,("textile"      , readTextile) 
-           ,("html"         , readHtml)
-           ,("latex"        , readLaTeX)
-           ,("haddock"      , readHaddock)
-           ,("twiki"        , readTWiki)
-           ,("t2t"          , readTxt2TagsNoMacros)
-           ]
+          , ("json"         , readJSON )
+          , ("commonmark"   , readCommonMark)
+          , ("rst"          , readRST)
+          , ("markdown"     , readMarkdown)
+          , ("mediawiki"    , readMediaWiki)
+          , ("docbook"      , readDocBook)
+          , ("opml"         , readOPML)
+          , ("org"          , readOrg)
+          , ("textile"      , readTextile) 
+          , ("html"         , readHtml)
+          , ("latex"        , readLaTeX)
+          , ("haddock"      , readHaddock)
+          , ("twiki"        , readTWiki)
+          , ("t2t"          , readTxt2TagsNoMacros)
+          ]
 
 allProcessors :: Config -> [(String, EndoIO Pandoc)]
 allProcessors Config {..}
-              = [("wikilinks", EndoIO $ wikilinks url)
+              = [ ("wikilinks", EndoIO $ wikilinks url)
                 ]
 
 configToRenders :: Config -> IO Renders
@@ -95,11 +95,7 @@ configToRenders cfg@(Config {..}) = do
   olsonData <- getTimeZoneSeriesFromOlsonFile ("/usr/share/zoneinfo/" ++ timezone time)
   let renderTime (Last Nothing) = "(never)"
       renderTime (Last (Just t)) = formatTime defaultTimeLocale (format time) $ utcToLocalTime' olsonData t
-      pandocReader | Format f <- readerFormat 
-        = case lookup f readers of
-            Just r -> r
-            Nothing -> readOrg
+      pandocReader | Format f <- readerFormat = fromMaybe readOrg (lookup f readers)
       pandocWriterOptions = def { writerSourceURL = Just url }
-
-      pandocProcessors = mconcat $ catMaybes $ map (flip lookup $ allProcessors cfg) processors
-  return $ Renders {..}
+      pandocProcessors = mconcat $ mapMaybe (flip lookup $ allProcessors cfg) processors
+  return Renders {..}
