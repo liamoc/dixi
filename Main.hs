@@ -26,7 +26,6 @@ import Text.Pandoc
 
 #ifdef OLDBASE
 import Control.Applicative
-import Control.Lens
 #endif
 
 import qualified Data.Yaml as Y
