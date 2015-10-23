@@ -11,7 +11,7 @@ import qualified Data.Text  as T
 
 type PatchSummary = (Int, Int, Int)
 
-patchSummary :: (Patch a) -> PatchSummary
+patchSummary :: Patch a -> PatchSummary
 patchSummary p | (Sum a, Sum b, Sum c) <- mconcat (map toCounts $ P.toList p) = (a,b,c)
   where toCounts (P.Insert  {}) = (Sum 1, Sum 0, Sum 0)
         toCounts (P.Delete  {}) = (Sum 0, Sum 1, Sum 0)

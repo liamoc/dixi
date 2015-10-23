@@ -44,32 +44,32 @@ renderTitle = T.pack . map (\c -> if c == '_' then ' ' else c) .  T.unpack
 
 prettyUrl :: Proxy (  Capture "page" Key :> "history"
                    :> Capture "version" Version
-                   :> Get '[HTML] PrettyPage
+                   :> Get '[HTML, JSON] PrettyPage
                    )
 prettyUrl =  Proxy
 
-latestUrl :: Proxy (Capture "page" Key :> Get '[HTML] PrettyPage)
+latestUrl :: Proxy (Capture "page" Key :> Get '[HTML, JSON] PrettyPage)
 latestUrl =  Proxy
 
 rawUrl :: Proxy (  Capture "page" Key :> "history"
                 :> Capture "version" Version
-                :> "raw" :> Get '[HTML] RawPage
+                :> "raw" :> Get '[HTML, JSON] RawPage
                 )
 rawUrl =  Proxy
 
 
 amendUrl :: Proxy (  Capture "page" Key :> "history"
                   :> Capture "version" Version
-                  :> ReqBody '[FormUrlEncoded] NewBody
-                  :> Post '[HTML] PrettyPage
+                  :> ReqBody '[FormUrlEncoded, JSON] NewBody
+                  :> Post '[HTML, JSON] PrettyPage
                   )
 amendUrl =  Proxy
 
-diffUrl :: Proxy (Capture "page" Key :> "history" :> "diff" :> Get '[HTML] DiffPage)
+diffUrl :: Proxy (Capture "page" Key :> "history" :> "diff" :> Get '[HTML, JSON] DiffPage)
 diffUrl =  Proxy
-historyUrl :: Proxy (Capture "page" Key :> "history" :> Get '[HTML] History)
+historyUrl :: Proxy (Capture "page" Key :> "history" :> Get '[HTML, JSON] History)
 historyUrl =  Proxy
-revertUrl :: Proxy (Capture "page" Key :> "history" :> "revert" :>  ReqBody '[FormUrlEncoded] RevReq :> Post '[HTML] PrettyPage)
+revertUrl :: Proxy (Capture "page" Key :> "history" :> "revert" :>  ReqBody '[FormUrlEncoded, JSON] RevReq :> Post '[HTML, JSON] PrettyPage)
 revertUrl =  Proxy
 
 stylesheet :: Css
@@ -319,7 +319,7 @@ instance ToMarkup RawPage where
            #{versionHeader k v com}
            <div .body>
             <form method="POST" action="/#{link amendUrl k v}">
-              <textarea name="body" cols=80 rows=24 style="font-family:monospace">#{bod}
+              <textarea name="content" cols=80 rows=24 style="font-family:monospace">#{bod}
               <br>
               <input type="text" name="comment" value="no comment">
               <input type="submit">
