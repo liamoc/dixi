@@ -14,6 +14,7 @@ extra-deps:
 - cmark-0.4.1
 - highlighting-kate-0.6
 - base-orphans-0.4.4
+- servant-docs-0.4.4.5
 resolver: lts-2.22
 flags: 
   dixi:
