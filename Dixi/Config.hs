@@ -5,6 +5,7 @@ module Dixi.Config ( Config (Config, port, storage)
                    , Renders (..)
                    , defaultConfig
                    , configToRenders
+                   , defaultRenders
                    , EndoIO (..)
                    ) where
 
@@ -59,6 +60,11 @@ data Renders = Renders
    , pandocWriterOptions :: WriterOptions
    , pandocProcessors :: EndoIO Pandoc
    }
+
+defaultRenders :: Renders
+defaultRenders = Renders renderTime readOrg def mempty
+  where renderTime (Last Nothing) = "(never)"
+        renderTime (Last (Just t)) = show t
 
 defaultConfig :: Config
 defaultConfig = Config 8000 "state"

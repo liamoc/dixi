@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ConstraintKinds   #-}
 {-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE CPP               #-}
 module Dixi.API where
 
 import Control.Lens hiding ((.=))
@@ -20,10 +21,16 @@ import Servant.API
 import Servant.HTML.Blaze
 import Text.Blaze.Html.Renderer.Text
 import Text.Hamlet (Html)
+
+#ifdef OLDBASE
+import Control.Applicative
+#endif
+
 import Dixi.Config
 import Dixi.Common
 import Dixi.Page
 import Dixi.PatchUtils
+
 
 
 type a :| b = a :<|> b
