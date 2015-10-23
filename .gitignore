@@ -4,3 +4,5 @@ dist
 state
 config.yml
 .stack-work
+docs.html
+docs.md
