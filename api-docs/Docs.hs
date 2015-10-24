@@ -5,6 +5,7 @@
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleInstances     #-}
 import Data.Proxy
+import Data.Patch(HunkStatus (..))
 import Dixi.API
 import Dixi.Forms()
 import Dixi.Markup()
@@ -17,6 +18,7 @@ import Dixi.Page
 import Data.Time
 import Data.Monoid
 import Control.Lens
+import qualified Data.Vector as V
 import Text.Hamlet
 
 instance ToSample RevReq RevReq where
@@ -30,11 +32,25 @@ instance ToSample PrettyPage PrettyPage where
                                                               (Last (Just "An optional comment"))
                                                               (Last (Just (UTCTime (ModifiedJulianDay 0) 0)))
 instance ToSample NewBody NewBody where
-  toSample _ = Nothing
+  toSample _ = Just $ NB "Some new content, in input format (e.g org mode)" (Just "An optional comment")
+
 instance ToSample History History where
-  toSample _ = Nothing
+  toSample _ = Just $ H  defaultRenders "Page_Title"
+                 [ Page (4, 9, 14) (Last (Just "Change 1")) (Last (Just (UTCTime (ModifiedJulianDay 0) 0)))
+                 , Page (12, 3, 1) (Last (Just "Change 2")) (Last (Just (UTCTime (ModifiedJulianDay 1) 0)))
+                 , Page (12, 0, 0) (Last (Just "Change 3")) (Last (Just (UTCTime (ModifiedJulianDay 2) 0)))
+                 ]
+
 instance ToSample DiffPage DiffPage where
-  toSample _ = Nothing
+  toSample _ = Just $ DP defaultRenders "Page_Title" 5 7
+                         (Page [ (V.fromList "This is the ", Unchanged)
+                               , (V.fromList "new", Replaced)
+                               , (V.fromList "ginal", Deleted)
+                               , (V.fromList " document.", Unchanged)
+                               ]
+                            (Last (Just "An optional comment"))
+                            (Last (Just (UTCTime (ModifiedJulianDay 0) 0))))
+
 instance ToParam (QueryParam "from" Int) where
   toParam _ = DocQueryParam "from" [] "Version to diff from, starting from 0 to N-1" Normal
 instance ToParam (QueryParam "to" Int) where
