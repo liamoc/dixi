@@ -20,8 +20,7 @@ of several changes) from deep in a document's history and
 preserve every other change.
 
 Right now the wiki doesn't support many bells and whistles,
-such as administrator control, extensive configurability, 
-or user accounts, but they're coming.
+such as administrator control or user accounts, but they're coming.
 
 ** Using
 
@@ -55,7 +54,7 @@ Different ~stack-*.yaml~ files are available in the repository for various snaps
 
 
 The configuration file is in YAML format, and by default should
-exist under ~config.yml~ in the current directory. Happily, ~dixi~ will prompt
+exist under ~config.yaml~ in the current directory. Happily, ~dixi~ will prompt
 you to create a file with the default configuration if it can't find the file.
 
 The default configuration is simply:
@@ -73,13 +72,22 @@ readerFormat: org           # Pandoc format to use. Can be any of:
 url: http://localhost:8000  # base url of your application, for links
 processors:                 # a list of pandoc document processors to use
 - wikilinks                 # right now, we only have the wikilinks processor
+static: static              # Directory to store static files like stylesheets, 
+                            # served under the /static/ url.
+                            # This option can be omitted and static files will
+                            # not be served by dixi, if you'd rather nginx
+                            # or apache do it for you.
+stylesheet: style.css       # Name of the stylesheet file to use.
+                            # If dixi is serving static files, you will
+                            # be prompted to create a default stylesheet 
+                            # in the static directory if one doesn't exist.
 #+END_SRC
 
-You can also tell ~dixi~ to look elsewhere for a ~config.yml~ by
+You can also tell ~dixi~ to look elsewhere for a ~config.yaml~ by
 providing the file's path as a command-line argument, e.g:
 
 #+BEGIN_SRC sh
-dixi my/other/config.yml
+dixi my/other/config.yaml
 #+END_SRC sh
 
 Once ~dixi~ is running, just navigate to ~localhost:8000~ (or whatever port ~dixi~ is configured to run on)
