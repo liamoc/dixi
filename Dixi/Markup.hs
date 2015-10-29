@@ -73,14 +73,14 @@ historyUrl =  Proxy
 revertUrl :: Proxy (Capture "page" Key :> "history" :> "revert" :>  ReqBody '[FormUrlEncoded, JSON] RevReq :> Post '[HTML, JSON] PrettyPage)
 revertUrl =  Proxy
 
-outerMatter :: String -> Text -> Html -> Html
+outerMatter :: Html -> Text -> Html -> Html
 outerMatter ss title bod = [shamlet|
   $doctype 5
   <html>
     <head>
       <link href="http://fonts.googleapis.com/css?family=PT+Serif:400,700" rel="stylesheet" type="text/css">
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-      <link rel="stylesheet" href="#{ss}">
+      #{ss}
       <title> #{title}
     <body>
       <div .header> #{title}
@@ -108,7 +108,7 @@ instance ToMarkup PatchSummary where
 
 
 instance ToMarkup DiffPage where
-  toMarkup (DP (Renders {..}) k v1 v2 p) = outerMatter stylesheetUrl (renderTitle k) $ [shamlet| 
+  toMarkup (DP (Renders {..}) k v1 v2 p) = outerMatter headerBlock (renderTitle k) $ [shamlet| 
     #{pageHeader k vString}
     <div .body>
       <div>
@@ -138,8 +138,8 @@ instance ToMarkup DiffPage where
       vString = "diff " <> T.pack (show v1) <> " - " <> T.pack (show v2)
 
 instance ToMarkup History where
-  toMarkup (H (Renders {..}) k []) = outerMatter stylesheetUrl (renderTitle k) $ pageHeader k "history"
-  toMarkup (H (Renders {..}) k ps) = outerMatter stylesheetUrl (renderTitle k) $ [shamlet| 
+  toMarkup (H (Renders {..}) k []) = outerMatter headerBlock (renderTitle k) $ pageHeader k "history"
+  toMarkup (H (Renders {..}) k ps) = outerMatter headerBlock (renderTitle k) $ [shamlet| 
     #{pageHeader k "history"}
     <div .body>
      <form method="GET" action="/#{link diffUrl k}">
@@ -209,7 +209,7 @@ instance ToMarkup PrettyPage where
     = let
        com = p ^. comment . traverse
        tim = renderTime $ p ^. time
-    in outerMatter stylesheetUrl (renderTitle k)
+    in outerMatter headerBlock (renderTitle k)
          [shamlet|
            #{versionHeader k v com}
            <div .body>
@@ -222,7 +222,7 @@ instance ToMarkup RawPage where
     = let
        com = p ^. comment . traverse
        bod = p ^. body
-    in outerMatter stylesheetUrl (renderTitle k)
+    in outerMatter headerBlock (renderTitle k)
          [shamlet|
            #{versionHeader k v com}
            <div .body>

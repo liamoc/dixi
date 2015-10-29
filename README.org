@@ -81,6 +81,10 @@ stylesheet: style.css       # Name of the stylesheet file to use.
                             # If dixi is serving static files, you will
                             # be prompted to create a default stylesheet 
                             # in the static directory if one doesn't exist.
+math: katex                 # How to handle LaTeX math, can be one of:
+                            #   plain, mathml, latexmathml, mathjax, katex
+                            # CDN scripts are loaded when any of the last three
+                            # methods are chosen.
 #+END_SRC
 
 You can also tell ~dixi~ to look elsewhere for a ~config.yaml~ by
