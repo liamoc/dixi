@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Dixi.Config ( Config (Config, port, storage)
+module Dixi.Config ( Config (Config, port, storage, static, stylesheet)
                    , Renders (..)
                    , defaultConfig
                    , configToRenders
@@ -11,6 +11,7 @@ module Dixi.Config ( Config (Config, port, storage)
 
 import Control.Monad ((<=<))
 import Data.Aeson
+import Data.Aeson.Types
 import Data.Default
 import Data.Maybe (mapMaybe, fromMaybe)
 import Data.Monoid
@@ -24,27 +25,33 @@ import Text.Pandoc.Error
 
 import Dixi.Pandoc.Wikilinks
 
-newtype Format = Format String deriving (Generic, Show)
+newtype Format = Format String
+               deriving (Generic, Show)
 
 data TimeConfig = TimeConfig
-            { timezone :: String
-            , format :: String
-            } deriving (Generic, Show)
+                { timezone :: String
+                , format   :: String
+                } deriving (Generic, Show)
+
 data Config = Config
-            { port :: Int
-            , storage :: FilePath
-            , time :: TimeConfig
+            { port         :: Int
+            , storage      :: FilePath
+            , static       :: Maybe FilePath
+            , stylesheet   :: FilePath
+            , time         :: TimeConfig
             , readerFormat :: Format
-            , url :: String
-            , processors :: [String]
+            , url          :: String
+            , processors   :: [String]
             } deriving (Generic, Show)
 
-instance FromJSON Config where
-instance ToJSON   Config where
-instance FromJSON TimeConfig where
-instance ToJSON   TimeConfig where
-instance FromJSON Format where
-instance ToJSON   Format where
+instance FromJSON Config     where
+  parseJSON = genericParseJSON (defaultOptions {omitNothingFields = True})
+instance ToJSON   Config     where -- generic
+  toJSON = genericToJSON (defaultOptions {omitNothingFields = True})
+instance FromJSON TimeConfig where -- generic
+instance ToJSON   TimeConfig where -- generic
+instance FromJSON Format     where -- generic
+instance ToJSON   Format     where -- generic
 
 type PureReader = ReaderOptions -> String -> Either PandocError Pandoc
 
@@ -59,15 +66,16 @@ data Renders = Renders
    , pandocReader :: PureReader
    , pandocWriterOptions :: WriterOptions
    , pandocProcessors :: EndoIO Pandoc
+   , stylesheetUrl :: String
    }
 
 defaultRenders :: Renders
-defaultRenders = Renders renderTime readOrg def mempty
+defaultRenders = Renders renderTime readOrg def mempty "/static/stylesheet.css"
   where renderTime (Last Nothing) = "(never)"
         renderTime (Last (Just t)) = show t
 
 defaultConfig :: Config
-defaultConfig = Config 8000 "state"
+defaultConfig = Config 8000 "state" (Just "static") "style.css"
                        (TimeConfig "Etc/UTC" "%T, %F")
                        (Format "org")
                        "http://localhost:8000"
@@ -104,4 +112,5 @@ configToRenders cfg@(Config {..}) = do
       pandocReader | Format f <- readerFormat = fromMaybe readOrg (lookup f readers)
       pandocWriterOptions = def { writerSourceURL = Just url }
       pandocProcessors = mconcat $ mapMaybe (flip lookup $ allProcessors cfg) processors
+      stylesheetUrl = url ++ "/static/" ++ stylesheet
   return Renders {..}

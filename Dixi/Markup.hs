@@ -6,7 +6,6 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeOperators #-}
 {-# OPTIONS -fno-warn-orphans #-}
 module Dixi.Markup where
@@ -21,11 +20,13 @@ import Data.Text     (Text)
 import Servant.API
 import Servant.HTML.Blaze
 import Text.Blaze
-import Text.Cassius
 import Text.Hamlet   (shamlet, Html)
+import Text.Heredoc
+import Text.Lucius
 import Text.Pandoc.Error
 
-import qualified Data.Text as T
+import qualified Data.Text      as T
+import qualified Data.Text.Lazy as L
 
 import Dixi.API
 import Dixi.Common
@@ -72,107 +73,14 @@ historyUrl =  Proxy
 revertUrl :: Proxy (Capture "page" Key :> "history" :> "revert" :>  ReqBody '[FormUrlEncoded, JSON] RevReq :> Post '[HTML, JSON] PrettyPage)
 revertUrl =  Proxy
 
-stylesheet :: Css
-stylesheet = [cassius|
-  div.body
-    margin: 1em
-  table.history
-    border: 0px
-    td
-      border: 0px
-      button
-        width: 100%
-        padding: 4px
-    tr
-      border: 0px
-  .hist-version
-    text-align:right
-  .histh-comment
-    text-align:left
-  .histh-version
-    padding-right:5px
-  .hist-fromto
-    text-align:center
-  body
-    font-family: PT Serif, Palatino, Georgia, Times, serif
-    margin: 0px
-  .toolbar
-    background: #BBBBAA
-    border-top: 1px solid #888877
-    border-bottom: 1px solid #EEEEDD
-    a:hover
-      background: #F1F1D9
-      border: 1px outset #F1F1D9
-    a:active
-      background: #F1F1D9
-      border: 1px inset #F1F1D9
-    a
-      background: #DCDCCB
-      border: 1px outset #F1F1D9
-      text-decoration: none
-      color: black
-      padding: 2px
-      margin-top: 2px
-      margin-bottom: 2px
-      margin-left: 2px
-  .header
-    background: #FFFFDD
-    font-size: 1.5em
-    font-weight: bold
-    padding-left: 0.5em
-    padding-top: 0.5em
-    padding-bottom: 0.5em
-  .subtitle
-    float:right
-    font-size: 0.8em
-    margin-right: 0.5em
-    color: gray
-    position: relative
-    top: -2.5em
-  .addition-sum
-    background: #B5F386
-    padding: 3px
-    border-radius: 6px 0px 0px 6px
-    margin-top:1px;
-    margin-bottom:1px;
-  .subtraction-sum
-    background: #EC8160
-    padding: 3px
-    margin-top:1px;
-    margin-bottom:1px;
-  .replacement-sum
-    background: #F3E686
-    padding: 3px
-    border-radius: 0px 6px 6px 0px
-    margin-top:1px;
-    margin-bottom:1px;
-  .hunk
-    white-space: pre
-    font-family:monospace
-    border-radius: 4px;
-  .hunk-inserted
-    background: #B5F386
-  .hunk-deleted
-    background: #EC8160
-    text-decoration: line-through;
-  .hunk-replaced
-    background: #F3E686
-  .timestamp
-    color: #444444
-    font-size: small
-  div.timestamp
-    margin-left: 0.5em
-    margin-top: 2em
-|] undefined
-
-outerMatter :: Text -> Html -> Html
-outerMatter title bod = [shamlet|
+outerMatter :: String -> Text -> Html -> Html
+outerMatter ss title bod = [shamlet|
   $doctype 5
   <html>
     <head>
       <link href="http://fonts.googleapis.com/css?family=PT+Serif:400,700" rel="stylesheet" type="text/css">
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-      <style> #{renderCss stylesheet}
+      <link rel="stylesheet" href="#{ss}">
       <title> #{title}
     <body>
       <div .header> #{title}
@@ -200,7 +108,7 @@ instance ToMarkup PatchSummary where
 
 
 instance ToMarkup DiffPage where
-  toMarkup (DP (Renders {..}) k v1 v2 p) = outerMatter (renderTitle k) $ [shamlet| 
+  toMarkup (DP (Renders {..}) k v1 v2 p) = outerMatter stylesheetUrl (renderTitle k) $ [shamlet| 
     #{pageHeader k vString}
     <div .body>
       <div>
@@ -227,11 +135,11 @@ instance ToMarkup DiffPage where
       styleFor Replaced  = "hunk-replaced"
       styleFor Unchanged = "hunk-unchanged"
       vString :: Text
-      vString = ("diff " <> T.pack (show v1) <> " - " <> T.pack (show v2))
+      vString = "diff " <> T.pack (show v1) <> " - " <> T.pack (show v2)
 
 instance ToMarkup History where
-  toMarkup (H (Renders {..}) k []) = outerMatter (renderTitle k) $ pageHeader k "history"
-  toMarkup (H (Renders {..}) k ps) = outerMatter (renderTitle k) $ [shamlet| 
+  toMarkup (H (Renders {..}) k []) = outerMatter stylesheetUrl (renderTitle k) $ pageHeader k "history"
+  toMarkup (H (Renders {..}) k ps) = outerMatter stylesheetUrl (renderTitle k) $ [shamlet| 
     #{pageHeader k "history"}
     <div .body>
      <form method="GET" action="/#{link diffUrl k}">
@@ -301,7 +209,7 @@ instance ToMarkup PrettyPage where
     = let
        com = p ^. comment . traverse
        tim = renderTime $ p ^. time
-    in outerMatter (renderTitle k)
+    in outerMatter stylesheetUrl (renderTitle k)
          [shamlet|
            #{versionHeader k v com}
            <div .body>
@@ -314,7 +222,7 @@ instance ToMarkup RawPage where
     = let
        com = p ^. comment . traverse
        bod = p ^. body
-    in outerMatter (renderTitle k)
+    in outerMatter stylesheetUrl (renderTitle k)
          [shamlet|
            #{versionHeader k v com}
            <div .body>
@@ -324,3 +232,121 @@ instance ToMarkup RawPage where
               <input type="text" name="comment" value="no comment">
               <input type="submit">
          |]
+
+defaultStylesheet :: L.Text
+Right defaultStylesheet = luciusRT [here|
+  div.body {
+    margin: 1em;
+  }
+  table.history {
+    border: 0px;
+    td {
+      border: 0px;
+      button {
+        width: 100%;
+        padding: 4px;
+      }
+    }
+    tr {
+      border: 0px;
+    }
+  }
+  .hist-version {
+    text-align:right;
+  }
+  .histh-comment {
+    text-align:left;
+  }
+  .histh-version {
+    padding-right:5px;
+  }
+  .hist-fromto {
+    text-align:center;
+  }
+  body {
+    font-family: PT Serif, Palatino, Georgia, Times, serif;
+    margin: 0px;
+  }
+  .toolbar {
+    background: #BBBBAA;
+    border-top: 1px solid #888877;
+    border-bottom: 1px solid #EEEEDD;
+    a:hover {
+      background: #F1F1D9;
+      border: 1px outset #F1F1D9;
+    }
+    a:active {
+      background: #F1F1D9;
+      border: 1px inset #F1F1D9;
+    }
+    a {
+      background: #DCDCCB;
+      border: 1px outset #F1F1D9;
+      text-decoration: none;
+      color: black;
+      padding: 2px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      margin-left: 2px;
+    }
+  }
+  .header {
+    background: #FFFFDD;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding-left: 0.5em;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+  .subtitle {
+    float:right;
+    font-size: 0.8em;
+    margin-right: 0.5em;
+    color: gray;
+    position: relative;
+    top: -2.5em;
+  }
+  .addition-sum {
+    background: #B5F386;
+    padding: 3px;
+    border-radius: 6px 0px 0px 6px;
+    margin-top:1px;
+    margin-bottom:1px;
+  }
+  .subtraction-sum {
+    background: #EC8160;
+    padding: 3px;
+    margin-top:1px;
+    margin-bottom:1px;
+  }
+  .replacement-sum {
+    background: #F3E686;
+    padding: 3px;
+    border-radius: 0px 6px 6px 0px;
+    margin-top:1px;
+    margin-bottom:1px;
+  }
+  .hunk {
+    white-space: pre;
+    font-family:monospace;
+    border-radius: 4px;
+  }
+  .hunk-inserted {
+    background: #B5F386;
+  }
+  .hunk-deleted {
+    background: #EC8160;
+    text-decoration: line-through;;
+  }
+  .hunk-replaced {
+    background: #F3E686;
+  }
+  .timestamp {
+    color: #444444;
+    font-size: small;
+  }
+  div.timestamp {
+    margin-left: 0.5em;
+    margin-top: 2em;
+  }
+|] [] 

@@ -6,3 +6,5 @@ config.yml
 .stack-work
 docs.html
 docs.md
+config.yaml
+static

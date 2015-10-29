@@ -23,6 +23,7 @@ import Text.Hamlet
 
 instance ToSample RevReq RevReq where
   toSample _ = Just $ DR 5 7 (Just "Revert changes 5-6, 6-7")
+
 instance ToSample RawPage RawPage where
   toSample _ = Just $ RP defaultRenders "Page_Title" 3 $ Page "Some page content, in input format (e.g org mode)"
                                                               (Last (Just "An optional comment"))
