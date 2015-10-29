@@ -19,10 +19,6 @@ import System.Environment
 import System.Exit
 import System.IO
 
-#ifdef OLDBASE
-import Control.Applicative
-#endif
-
 import qualified Data.Yaml         as Y
 import qualified Data.Text.Lazy.IO as L
 
