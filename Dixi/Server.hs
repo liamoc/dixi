@@ -2,6 +2,7 @@
 {-# LANGUAGE PolyKinds         #-}
 {-# LANGUAGE TypeFamilies      #-}
 {-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP               #-}
@@ -30,7 +31,7 @@ import Dixi.Common
 import Dixi.Config
 import Dixi.Database
 import Dixi.Forms  () -- imported for orphans
-import Dixi.Markup (writePandocError)
+import Dixi.Markup (writePandocError, dixiError)
 import Dixi.Page
 
 spacesToUScores :: T.Text -> T.Text
@@ -43,7 +44,9 @@ page db renders (spacesToUScores -> key)
   where
     latest  =  latestQ pp |: latestQ rp
 
-    diffPages (Just v1) (Just v2) = liftIO $ DP renders key v1 v2 <$> query db (GetDiff key (v1, v2))
+    diffPages (Just v1) (Just v2) = liftIO (query db (GetDiff key (v1, v2)))
+                                       >>= \case Left  e -> handle e
+                                                 Right x -> return $ DP renders key v1 v2 x
     diffPages _ _ = left err400
 
     history =  liftIO (H renders key <$> query db (GetHistory key))
@@ -63,7 +66,10 @@ page db renders (spacesToUScores -> key)
     latestQ p = liftIO (uncurry (p key) =<< query db (GetLatest key))
 
     versionQ :: (Key -> Version -> Page Text -> IO a) -> Version -> EitherT ServantErr IO a
-    versionQ p v = liftIO (p key v =<< query db (GetVersion key v))
+    versionQ p v = liftIO (query db (GetVersion key v))
+                      >>= \case Left  e -> handle e
+                                Right x -> liftIO (p key v x)
+
 
     pp :: Key -> Version -> Page Text -> IO PrettyPage
     pp k v p = fmap (PP renders k v) $ for p $ \b ->
@@ -72,6 +78,9 @@ page db renders (spacesToUScores -> key)
                    Right pd -> writeHtml (pandocWriterOptions renders) <$> runEndoIO (pandocProcessors renders) pd
 
     rp k v p = return (RP renders k v p)
+
+    handle :: DixiError -> EitherT ServantErr IO a
+    handle e = left err404 { errBody = dixiError (headerBlock renders) e }
 
 
 server :: AcidState Database -> Renders -> Server Dixi

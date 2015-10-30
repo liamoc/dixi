@@ -11,22 +11,24 @@
 module Dixi.Markup where
 
 import Control.Lens
-import Data.Foldable (toList)
-import Data.Maybe    (fromMaybe)
+import Data.Foldable            (toList)
+import Data.Maybe               (fromMaybe)
 import Data.Monoid
-import Data.Patch    (Hunks, HunkStatus(..))
+import Data.Patch               (Hunks, HunkStatus(..))
 import Data.Proxy
-import Data.Text     (Text)
+import Data.Text                (Text)
 import Servant.API
 import Servant.HTML.Blaze
 import Text.Blaze
-import Text.Hamlet   (shamlet, Html)
+import Text.Blaze.Renderer.Utf8 (renderMarkup)
+import Text.Hamlet              (shamlet, Html)
 import Text.Heredoc
 import Text.Lucius
 import Text.Pandoc.Error
 
-import qualified Data.Text      as T
-import qualified Data.Text.Lazy as L
+import qualified Data.Text            as T
+import qualified Data.Text.Lazy       as L
+import qualified Data.ByteString.Lazy as B
 
 import Dixi.API
 import Dixi.Common
@@ -95,6 +97,23 @@ unlast d (Last x) = fromMaybe d x
 guardText :: Text -> Text -> Text
 guardText x y | y == ""   = x
               | otherwise = y
+
+
+dixiError :: Html -> DixiError -> B.ByteString
+dixiError header (VersionNotFound k v) = renderMarkup $ outerMatter header (renderTitle k)
+            [shamlet|
+              #{pageHeader k "Error"}
+              <div .body>
+                <h1> Error
+                <span.error> Version #{v} not found!
+            |]
+dixiError header (PatchNotApplicable k) = renderMarkup $ outerMatter header (renderTitle k)
+            [shamlet|
+              #{pageHeader k "Error"}
+              <div .body>
+                <h1> Internal Error
+                <span.error> Patch not Applicable!
+            |]
 
 instance ToMarkup URI where
   toMarkup u = [shamlet|#{show u}|]
