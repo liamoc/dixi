@@ -122,7 +122,7 @@ test-suite api-docs
                , lens >= 4.7 && < 4.14
                , aeson-pretty >= 0.7 && < 0.8
                , aeson >= 0.8 && <  0.11
-               , attoparsec >= 0.13 && < 0.14
+               , attoparsec >= 0.12 && < 0.14
                , bytestring >= 0.10 && < 0.11
                , shakespeare >= 2.0 && < 2.1
                , vector >= 0.10 && <0.12
