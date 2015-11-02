@@ -13,7 +13,7 @@ description:         This project is a simple wiki developed based on a
                      made to any version of each document and they are
                      transformed to be applied to the latest version.
                      .
-                     This also makes it easy to use the group structure of
+                     This also makes it easy to use the groupoid structure of
                      patches to be able to revert changes (or the composition
                      of several changes) from deep in a document's history and
                      preserve every other change.

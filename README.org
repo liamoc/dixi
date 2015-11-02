@@ -146,14 +146,14 @@ that violate basic principles of software engineering as well as exhibiting comp
 It turns out, computer scientists and software engineers have long sinced developed tools, both in theory
 and practice, that allow us to implement wikis a lot better than has been done previously.
 
-- The use of [[http://home.solcon.nl/mklooster/darcs/patch-calculus.html][the theory of patches]] (really, just the [[https://en.wikipedia.org/wiki/Group_(mathematics)][group structure]] of patches) to allow us to easily compose 
+- The use of [[http://home.solcon.nl/mklooster/darcs/patch-calculus.html][the theory of patches]] (really, just the [[https://en.wikipedia.org/wiki/Groupoid][groupoid structure]] of patches) to allow us to easily compose 
   and revert patches. This is embodied in my [[https://github.com/liamoc/patches-vector][patches-vector]] library.
 - The use of [[https://en.wikipedia.org/wiki/Operational_transformation][operational transformation]] to move patches relative to other patches, and handle merging, which is
   also in my [[https://github.com/liamoc/patches-vector][patches-vector]] library.
 - The use of efficient [[https://github.com/liamoc/composition-tree][composition trees]] to allow us to efficiently compute the composition of several changes,
   and also to eliminate the need to store each version of the document independently.
 - The use of property-based testing to formally specify all of the above and test each implementation against
-  its specification, which is rigorous and thorough. For ~patches-vector~, the group laws and several transformation
+  its specification, which is rigorous and thorough. For ~patches-vector~, the groupoid laws and several transformation
   properties are checked. For ~composition-tree~, several properties are derived from the fact that a composition tree
   is a [[https://en.wikipedia.org/wiki/Refinement_(computing)][data refinement]] of a list. 
 - The use of the [[http://acid-state.seize.it/][acid-state]] library to store these composition trees, which provides proper [[https://en.wikipedia.org/wiki/ACID][ACID]] guarantees
