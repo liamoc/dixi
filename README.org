@@ -121,7 +121,18 @@ the "test suite" provided in the cabal file, which will in fact generate a markd
 or otherwise whatever name is provided as the first command line argument. If you're using stack, simply run ~stack test~
 and view the results.
 
-HTML documentation can then be generated via ~pandoc~ or other tools.
+HTML documentation can then be generated via ~pandoc~ or other tools, using the ~buttondown~ style provided, courtesy of
+~ryangray~.
+
+#+BEGIN_SRC sh
+stack test && stack exec pandoc -- docs.md -s -c buttondown.css -o docs.html
+
+# or in cabal...
+
+cabal test
+pandoc docs.md -s -c buttondown.css -o docs.html # Assuming pandoc is in your path.
+#+END_SRC
+
 
 ** Future Work
 
