@@ -1,10 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE CPP                #-}
 {-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DeriveTraversable  #-}
-{-# LANGUAGE DeriveFoldable     #-}
 {-# OPTIONS -fno-warn-orphans   #-}
 module Dixi.Database.Orphans where
 
@@ -15,11 +12,7 @@ import Data.Data
 import Data.Monoid
 import Data.Patch.Internal
 import Data.SafeCopy
-#ifdef OLDBASE
-import Data.Foldable
-import Data.Traversable
 import Data.Orphans()
-#endif
 
 deriveSafeCopy 0 'base ''Node
 deriveSafeCopy 0 'base ''C.Compositions
@@ -30,11 +23,6 @@ deriveSafeCopy 0 'base ''Patch
 deriveSafeCopy 0 'base ''Last
 deriveSafeCopy 0 'base ''HunkStatus
 
-deriving instance Foldable    (Last)
-deriving instance Traversable (Last)
-
 deriving instance Typeable (Patch)
 deriving instance Typeable (HunkStatus)
-
-deriving instance Data a => (Data (Last a))
 
