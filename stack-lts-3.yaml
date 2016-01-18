@@ -6,4 +6,5 @@ extra-deps:
 - edit-distance-vector-1.0.0.2
 - patches-vector-0.1.4.0
 - servant-blaze-0.4.4.5
+- base-orphans-0.5.0
 resolver: lts-3.10

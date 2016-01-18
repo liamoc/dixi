@@ -18,8 +18,8 @@ import Data.SafeCopy
 #ifdef OLDBASE
 import Data.Foldable
 import Data.Traversable
-import Data.Orphans()
 #endif
+import Data.Orphans()
 
 deriveSafeCopy 0 'base ''Node
 deriveSafeCopy 0 'base ''C.Compositions
@@ -30,11 +30,7 @@ deriveSafeCopy 0 'base ''Patch
 deriveSafeCopy 0 'base ''Last
 deriveSafeCopy 0 'base ''HunkStatus
 
-deriving instance Foldable    (Last)
-deriving instance Traversable (Last)
-
 deriving instance Typeable (Patch)
 deriving instance Typeable (HunkStatus)
 
-deriving instance Data a => (Data (Last a))
 
