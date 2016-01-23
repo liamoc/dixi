@@ -11,9 +11,9 @@ wikilinks' :: String -> Pandoc -> Pandoc
 wikilinks' s = walk (wikify s)
 
 wikify :: String -> Inline -> Inline
-wikify base (Link s ("",t)) = Link s (url, t)
+wikify base (Link a s ("",t)) = Link a s (url, t)
   where url = base ++ "/" ++ inlinesToURL s
-wikify base (Link s (l,"wikilink")) = Link s (base ++ "/" ++ l, "wikilink")
+wikify base (Link a s (l,"wikilink")) = Link a s (base ++ "/" ++ l, "wikilink")
 wikify _ x = x
 
 -- | Derives a URL from a list of Pandoc Inline elements.
@@ -41,7 +41,8 @@ inlinesToString = concatMap go
                Math InlineMath s       -> "$" ++ s ++ "$"
                RawInline (Format "tex") s -> s
                RawInline _ _           -> ""
-               Link xs _               -> concatMap go xs
-               Image xs _              -> concatMap go xs
+               Link _ xs _             -> concatMap go xs
+               Image _ xs _            -> concatMap go xs
                Note _                  -> ""
                Span _ xs               -> concatMap go xs
+               SoftBreak {}            -> ""

@@ -3,4 +3,7 @@ packages:
 - '.'
 extra-deps: 
 - base-orphans-0.5.0
+- pandoc-1.16.0.2
+- cmark-0.5.1
+- pandoc-types-1.16.0.1
 resolver: lts-4.0

@@ -2,7 +2,7 @@
 -- see http://haskell.org/cabal/users-guide/
 
 name:                dixi
-version:             0.6.0.4
+version:             0.6.0.5
 synopsis:            A wiki implemented with a firm theoretical foundation.
 description:         This project is a simple wiki developed based on a
                      firm theoretical foundation.
@@ -59,7 +59,7 @@ library
   else
      build-depends: base >= 4.8 && < 4.10
   build-depends:       composition-tree >= 0.2.0.1 && < 0.3, patches-vector >= 0.1.2 && < 0.2
-                     , pandoc >= 1.15 &&  < 1.17 , pandoc-types >= 1.12 && < 1.17
+                     , pandoc >= 1.16 &&  < 1.17 , pandoc-types >= 1.16 && < 1.17
                      , base-orphans >= 0.5.0 && < 0.6
                      , servant >= 0.4 && < 0.5
                      , servant-server >= 0.4 && < 0.5

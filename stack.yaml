@@ -10,6 +10,9 @@ packages:
 # Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
 extra-deps: 
 - base-orphans-0.5.0
+- pandoc-1.16.0.2
+- cmark-0.5.1
+- pandoc-types-1.16.0.1
 
 # Override default flag values for local packages and extra-deps
 flags: {}
