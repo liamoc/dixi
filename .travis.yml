@@ -15,8 +15,6 @@ addons:
 matrix:
   fast_finish: true
   include:
-    - compiler: ": 7.8 LTS"
-      env: ARGS="--resolver lts-2 --stack-yaml stack-lts-2.yaml"
     - compiler: ": 7.10 LTS"
       env: ARGS="--resolver lts-3 --stack-yaml stack-lts-3.yaml"
     - compiler: ": 7.10 LTS4"
