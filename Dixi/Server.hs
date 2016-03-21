@@ -12,7 +12,7 @@
 module Dixi.Server where
 
 import Control.Monad.IO.Class
-import Control.Monad.Trans.Either
+import Control.Monad.Trans.Except
 import Data.Acid
 import Data.Default
 import Data.Time
@@ -47,7 +47,7 @@ page db renders (spacesToUScores -> key)
     diffPages (Just v1) (Just v2) = liftIO (query db (GetDiff key (v1, v2)))
                                        >>= \case Left  e -> handle e
                                                  Right x -> return $ DP renders key v1 v2 x
-    diffPages _ _ = left err400
+    diffPages _ _ = throwE err400
 
     history =  liftIO (H renders key <$> query db (GetHistory key))
             |: version
@@ -62,10 +62,10 @@ page db renders (spacesToUScores -> key)
     updateVersion v (NB t c) = do _ <- liftIO (getCurrentTime >>= update db . Amend key v t c)
                                   latestQ pp
 
-    latestQ :: (Key -> Version -> Page Text -> IO a) -> EitherT ServantErr IO a
+    latestQ :: (Key -> Version -> Page Text -> IO a) -> ExceptT ServantErr IO a
     latestQ p = liftIO (uncurry (p key) =<< query db (GetLatest key))
 
-    versionQ :: (Key -> Version -> Page Text -> IO a) -> Version -> EitherT ServantErr IO a
+    versionQ :: (Key -> Version -> Page Text -> IO a) -> Version -> ExceptT ServantErr IO a
     versionQ p v = liftIO (query db (GetVersion key v))
                       >>= \case Left  e -> handle e
                                 Right x -> liftIO (p key v x)
@@ -79,8 +79,8 @@ page db renders (spacesToUScores -> key)
 
     rp k v p = return (RP renders k v p)
 
-    handle :: DixiError -> EitherT ServantErr IO a
-    handle e = left err404 { errBody = dixiError (headerBlock renders) e }
+    handle :: DixiError -> ExceptT ServantErr IO a
+    handle e = throwE err404 { errBody = dixiError (headerBlock renders) e }
 
 
 server :: AcidState Database -> Renders -> Server Dixi

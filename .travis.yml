@@ -15,10 +15,12 @@ addons:
 matrix:
   fast_finish: true
   include:
-    - compiler: ": 7.10 LTS"
+    - compiler: ": 7.10 LTS3"
       env: ARGS="--resolver lts-3 --stack-yaml stack-lts-3.yaml"
     - compiler: ": 7.10 LTS4"
       env: ARGS="--resolver lts-4 --stack-yaml stack-lts-4.yaml"
+    - compiler: ": 7.10 LTS5"
+      env: ARGS="--resolver lts-5 --stack-yaml stack-lts-5.yaml"
 
 before_install:
 # Download and unpack the stack executable

@@ -6,4 +6,7 @@ extra-deps:
 - pandoc-1.16.0.2
 - cmark-0.5.1
 - pandoc-types-1.16.0.1
-resolver: lts-4.0
+- servant-0.5
+- servant-blaze-0.5
+- servant-server-0.5
+resolver: lts-4.2
