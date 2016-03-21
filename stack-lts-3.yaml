@@ -9,7 +9,10 @@ extra-deps:
 - pandoc-1.16.0.2
 - cmark-0.5.1
 - pandoc-types-1.16.0.1
+- base-compat-0.9.0
 - servant-0.5
 - servant-blaze-0.5
 - servant-server-0.5
+- servant-docs-0.5
+- control-monad-omega-0.3.1
 resolver: lts-3.10
