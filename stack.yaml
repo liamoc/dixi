@@ -12,6 +12,8 @@ extra-deps:
 - servant-0.5
 - servant-blaze-0.5
 - servant-server-0.5
+- servant-docs-0.5
+- control-monad-omega-0.3.1
 # - pandoc-types-1.16.0.1
 
 # Override default flag values for local packages and extra-deps

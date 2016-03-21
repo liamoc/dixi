@@ -27,29 +27,29 @@ import Data.Aeson.Parser
 import Data.Attoparsec.ByteString.Lazy
 import Data.Aeson.Encode.Pretty
 import qualified Data.ByteString.Lazy as LBS
-instance ToSample RevReq RevReq where
-  toSample _ = Just $ DR 5 7 (Just "Revert changes 5-6, 6-7")
+instance ToSample RevReq where
+  toSamples _ = just $ DR 5 7 (Just "Revert changes 5-6, 6-7")
 
-instance ToSample RawPage RawPage where
-  toSample _ = Just $ RP defaultRenders "Page_Title" 3 $ Page "Some page content, in input format (e.g org mode)"
+instance ToSample RawPage where
+  toSamples _ = just $ RP defaultRenders "Page_Title" 3 $ Page "Some page content, in input format (e.g org mode)"
                                                               (Last (Just "An optional comment"))
                                                               (Last (Just (UTCTime (ModifiedJulianDay 0) 0)))
-instance ToSample PrettyPage PrettyPage where
-  toSample _ = Just $ PP defaultRenders "Page_Title" 3 $ Page [shamlet|Some page content, in <b>HTML</b> from Pandoc.|]
+instance ToSample PrettyPage where
+  toSamples _ = just $ PP defaultRenders "Page_Title" 3 $ Page [shamlet|Some page content, in <b>HTML</b> from Pandoc.|]
                                                               (Last (Just "An optional comment"))
                                                               (Last (Just (UTCTime (ModifiedJulianDay 0) 0)))
-instance ToSample NewBody NewBody where
-  toSample _ = Just $ NB "Some new content, in input format (e.g org mode)" (Just "An optional comment")
+instance ToSample NewBody where
+  toSamples _ = just $ NB "Some new content, in input format (e.g org mode)" (Just "An optional comment")
 
-instance ToSample History History where
-  toSample _ = Just $ H  defaultRenders "Page_Title"
+instance ToSample History where
+  toSamples _ = just $ H  defaultRenders "Page_Title"
                  [ Page (4, 9, 14) (Last (Just "Change 1")) (Last (Just (UTCTime (ModifiedJulianDay 0) 0)))
                  , Page (12, 3, 1) (Last (Just "Change 2")) (Last (Just (UTCTime (ModifiedJulianDay 1) 0)))
                  , Page (12, 0, 0) (Last (Just "Change 3")) (Last (Just (UTCTime (ModifiedJulianDay 2) 0)))
                  ]
 
-instance ToSample DiffPage DiffPage where
-  toSample _ = Just $ DP defaultRenders "Page_Title" 5 7
+instance ToSample DiffPage where
+  toSamples _ = just $ DP defaultRenders "Page_Title" 5 7
                          (Page [ (V.fromList "This is the ", Unchanged)
                                , (V.fromList "new", Replaced)
                                , (V.fromList "ginal", Deleted)
@@ -57,7 +57,7 @@ instance ToSample DiffPage DiffPage where
                                ]
                             (Last (Just "An optional comment"))
                             (Last (Just (UTCTime (ModifiedJulianDay 0) 0))))
-
+just x = [("",x)]
 instance ToParam (QueryParam "from" Int) where
   toParam _ = DocQueryParam "from" [] "Version to diff from, starting from 0 to N-1" Normal
 instance ToParam (QueryParam "to" Int) where
@@ -70,7 +70,7 @@ instance ToCapture (Capture "version" Int) where
 main :: IO ()
 main = do
   filename <- fmap (\x -> if null x then "docs.md" else head x) getArgs
-  writeFile filename (markdown $ postprocess $ docsWith intro extra dixi)
+  writeFile filename (markdown $ postprocess $ docsWith defaultDocOptions intro extra dixi)
 
 postprocess :: API -> API
 postprocess = over (apiEndpoints . traverse . rqbody)              (filter ((== contentType (Proxy :: Proxy JSON)) . view _1) . fmap (over _2 prettify))
